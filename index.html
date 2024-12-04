@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="google-site-verification" content="XUVmGoIjqlJTmcx80iUEyo7zgYWVigIcdr0jinhIvwk" /> 
     <title>REGISTER AMAZON</title>
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-      /* Reset et base */
         * {
             margin: 0;
             padding: 0;
@@ -25,58 +23,9 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            color: white;
         }
 
-        /* Animation de cercle en arrière-plan */
-        .background-circles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            animation: rotate 20s linear infinite;
-            transform-origin: center;
-        }
-
-        .circle:nth-child(1) {
-            width: 200px;
-            height: 200px;
-            top: -100px;
-            right: -100px;
-            animation-duration: 25s;
-        }
-
-        .circle:nth-child(2) {
-            width: 300px;
-            height: 300px;
-            bottom: -150px;
-            left: -150px;
-            animation-duration: 35s;
-            animation-direction: reverse;
-        }
-
-        .circle:nth-child(3) {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            left: 10%;
-            animation-duration: 15s;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg) translateX(50px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(50px) rotate(-360deg); }
-        }
-
-        /* Container principal */
         .container {
             position: relative;
             z-index: 10;
@@ -85,11 +34,10 @@
             border-radius: 20px;
             padding: 30px;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
 
-        /* Boutons d'onglets */
         .tab-buttons {
             display: flex;
             margin-bottom: 20px;
@@ -105,6 +53,7 @@
             opacity: 0.6;
             transition: all 0.3s ease;
             border-bottom: 2px solid transparent;
+            cursor: pointer;
         }
 
         .tab-button.active {
@@ -112,7 +61,6 @@
             border-bottom-color: white;
         }
 
-        /* Formulaires */
         .form-container form {
             display: none;
         }
@@ -175,25 +123,37 @@
             color: white;
             text-align: center;
             margin-bottom: 15px;
-        } 
+        }
+
+        .referral-section {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .referral-code {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: 1px solid white;
+            padding: 5px 10px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
     </style>
 </head>
 <body>
-    <div class="background-animation"></div>
-
-    <div class="rotating-section">
-        <div class="rotating-circle circle1"></div>
-        <div class="rotating-circle circle2"></div>
-        <div class="rotating-circle circle3"></div>
-    </div>
-    
-    <div class="background-circles">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-    </div>
-
-
     <div class="container">
         <div class="tab-buttons">
             <button class="tab-button active" onclick="showLogin()">Connexion</button>
@@ -236,10 +196,15 @@
                     <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" required />
                     <i class="fas fa-lock"></i>
                 </div>
-                <div class="input-group">
-                    <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)" />
-                    <i class="fas fa-ticket"></i>
-                </div>
+                
+                
+                <div class="referral-section" id="referralSection" style="display: none;">
+    <h3>Votre code de parrainage</h3>
+    <div class="input-group">
+        <span id="userReferralCode" class="referral-code-span"></span>
+        <i class="fas fa-link"></i>
+    </div>
+</div>
                 <p class="error-message" id="signupError"></p>
                 <p class="success-message" id="signupSuccess"></p>
                 <button type="submit">
@@ -248,14 +213,35 @@
                 </button>
             </form>
         </div>
+
+        <!-- Section de code de parrainage -->
+        <div class="referral-section" id="referralSection" style="display: none;">
+            <h3>Votre code de parrainage</h3>
+            <div class="referral-code">
+                <span id="userReferralCode"></span>
+                <button class="copy-btn" id="copyReferralCode">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Firebase et Script -->
     <script type="module">
-    // Import des modules Firebase
+    // Imports Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { 
+        getAuth, 
+        createUserWithEmailAndPassword, 
+        signInWithEmailAndPassword,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { 
+        getDatabase, 
+        ref, 
+        set, 
+        get, 
+        child 
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     // Configuration Firebase
     const firebaseConfig = {
@@ -273,12 +259,13 @@
     const auth = getAuth();
     const database = getDatabase(app);
 
-    // Fonctions utilitaires
+    // Génération du code de parrainage
     function generateReferralCode() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         return Array.from({ length: 6 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
     }
 
+    // Vérification du code de parrainage
     async function checkReferralCode(code) {
         if (!code) return null;
         try {
@@ -290,6 +277,7 @@
         }
     }
 
+    // Enregistrement du code de parrainage
     async function registerReferralCode(userId, code) {
         try {
             await set(ref(database, 'referralCodes/' + code), {
@@ -303,81 +291,49 @@
         }
     }
 
-    async function updateUserBalance(userId, amount) {
-        try {
-            const userRef = ref(database, 'users/' + userId);
-            const snapshot = await get(userRef);
-            if (snapshot.exists()) {
-                const currentBalance = snapshot.val().balance || 0;
-                await set(ref(database, 'users/' + userId + '/balance'), currentBalance + amount);
-            }
-        } catch (error) {
-            console.error("Erreur de mise à jour du solde:", error);
-        }
-    }
-
-    // Nouvelles fonctions pour le code de parrainage
-    async function displayUserReferralCode() {
+    // Récupérer le code de parrainage de l'utilisateur
+    async function getUserReferralCode() {
         try {
             const user = auth.currentUser;
+            if (!user) return null;
+
+            const userRef = ref(database, 'users/' + user.uid);
+            const snapshot = await get(userRef);
             
-            if (user) {
-                const userRef = ref(database, 'users/' + user.uid);
-                const snapshot = await get(userRef);
-                
-                if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    const referralCode = userData.referralCode;
-                    
-                    const referralCodeElement = document.getElementById('userReferralCode');
-                    
-                    if (referralCodeElement) {
-                        referralCodeElement.textContent = referralCode;
-                        
-                        const copyButton = document.getElementById('copyReferralCodeBtn');
-                        if (copyButton) {
-                            copyButton.addEventListener('click', () => {
-                                navigator.clipboard.writeText(referralCode).then(() => {
-                                    alert('Code de parrainage copié !');
-                                });
-                            });
-                        }
-                    }
-                }
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                return userData.referralCode;
             }
+            return null;
         } catch (error) {
-            console.error("Erreur lors de la récupération du code de parrainage :", error);
+            console.error("Erreur de récupération du code de parrainage:", error);
+            return null;
         }
     }
 
-    function generateReferralLink() {
-        const user = auth.currentUser;
-        if (user) {
-            const userRef = ref(database, 'users/' + user.uid);
-            get(userRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    const referralCode = snapshot.val().referralCode;
-                    const referralLink = `${window.location.origin}/index.html?ref=${referralCode}`;
-                    
-                    const referralLinkElement = document.getElementById('referralLink');
-                    if (referralLinkElement) {
-                        referralLinkElement.value = referralLink;
-                        
-                        const copyLinkButton = document.getElementById('copyReferralLinkBtn');
-                        if (copyLinkButton) {
-                            copyLinkButton.addEventListener('click', () => {
-                                navigator.clipboard.writeText(referralLink).then(() => {
-                                    alert('Lien de parrainage copié !');
-                                });
-                            });
-                        }
-                    }
-                }
+    // Afficher le code de parrainage
+    async function displayReferralCode() {
+        const referralCode = await getUserReferralCode();
+        const referralSection = document.getElementById('referralSection');
+        const userReferralCodeElement = document.getElementById('userReferralCode');
+        const copyReferralCodeButton = document.getElementById('copyReferralCode');
+
+        if (referralCode) {
+            userReferralCodeElement.textContent = referralCode;
+            referralSection.style.display = 'block';
+
+            // Copier le code de parrainage
+            copyReferralCodeButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(referralCode).then(() => {
+                    alert('Code de parrainage copié !');
+                }).catch(err => {
+                    console.error('Erreur de copie:', err);
+                });
             });
         }
     }
-    
-    // Fonctions d'interface existantes
+
+    // Fonctions d'interface
     window.showLogin = function() {
         document.getElementById("loginFormData").classList.add("active");
         document.getElementById("signupFormData").classList.remove("active");
@@ -394,14 +350,9 @@
         });
     }
 
-    function setLoading(form, isLoading) {
-        form.classList.toggle('loading', isLoading);
-    }    
-
     // Gestion du formulaire d'inscription
     document.getElementById("signupFormData").addEventListener("submit", async function(event) {
         event.preventDefault();
-        setLoading(this, true);
         const errorElement = document.getElementById("signupError");
         const successElement = document.getElementById("signupSuccess");
         errorElement.innerText = "";
@@ -415,10 +366,12 @@
             const confirmPassword = document.getElementById("confirmPassword").value;
             const referralCode = document.getElementById("referralCode").value;
 
+            // Validation des données
             if (password !== confirmPassword) {
                 throw new Error("Les mots de passe ne correspondent pas");
             }
 
+            // Vérification du code de parrainage
             let referrerData = null;
             if (referralCode) {
                 referrerData = await checkReferralCode(referralCode);
@@ -427,10 +380,12 @@
                 }
             }
 
+            // Création de l'utilisateur
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             const newReferralCode = generateReferralCode();
             
+            // Sauvegarde des données utilisateur
             await set(ref(database, 'users/' + user.uid), {
                 username,
                 email,
@@ -441,29 +396,26 @@
                 createdAt: Date.now()
             });
 
+            // Enregistrement du code de parrainage
             await registerReferralCode(user.uid, newReferralCode);
 
-            if (referrerData) {
-                await updateUserBalance(referrerData.userId, 0);
-                await updateUserBalance(user.uid, 0);
-                successElement.innerText = "Compte créé avec succès !";
-            }
+            successElement.innerText = "Compte créé avec succès !";
 
+            // Redirection après création
             setTimeout(() => {
                 window.location.href = "solde.html";
             }, 1500);
 
         } catch (error) {
             errorElement.innerText = error.message;
-        } finally {
-            setLoading(this, false);
         }
     });
 
     // Gestion du formulaire de connexion
     document.getElementById("loginFormData").addEventListener("submit", async function(event) {
         event.preventDefault();
-        setLoading(this, true);
+        const errorElement = document.getElementById("loginError");
+        errorElement.innerText = "";
 
         try {
             const telephone = document.getElementById("loginTelephone").value;
@@ -473,9 +425,7 @@
             await signInWithEmailAndPassword(auth, email, password);
             window.location.href = "solde.html";
         } catch (error) {
-            document.getElementById("loginError").innerText = "Numéro ou mot de passe incorrect";
-        } finally {
-            setLoading(this, false);
+            errorElement.innerText = "Numéro ou mot de passe incorrect";
         }
     });
 
@@ -490,14 +440,11 @@
         }
     });
 
-    // Gestion de l'authentification et affichage du code de parrainage
-    auth.onAuthStateChanged((user) => {
+    // Gestion de l'authentification 
+    onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Si la page courante est solde.html, afficher le code de parrainage
-            if (window.location.pathname.includes('solde.html')) {
-                displayUserReferralCode();
-                generateReferralLink();
-            }
+            // Utilisateur connecté, afficher le code de parrainage
+            displayReferralCode();
         } else {
             // Rediriger vers la page de connexion si pas connecté
             if (!window.location.pathname.includes('index.html')) {
@@ -505,7 +452,6 @@
             }
         }
     });
-    
-</script>
+    </script>
 </body>
 </html>
