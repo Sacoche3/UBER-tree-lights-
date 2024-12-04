@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Support Client</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #5d6bff;
+            --background-color: #f4f6fd;
+            --text-primary: #2c3e50;
+            --text-secondary: #7a8ba9;
+            --message-bg-user: #5d6bff;
+            --message-bg-admin: #e9edf5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .chat-container {
+            width: 500px;
+            max-height: 90vh;
+            background-color: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(93, 107, 255, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-color), #7a5fff);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header h1 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .user-email {
+            font-size: 14px;
+            opacity: 0.8;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #conversation {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9fbff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-container {
+            display: flex;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .user-message, .admin-message {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: var(--message-bg-user);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .admin-message {
+            background-color: var(--message-bg-admin);
+            color: var(--text-primary);
+            align-self: flex-start;
+        }
+
+        .message-input-container {
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #edf2f7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #message {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .send-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            background-color: #4a56d6;
+        }
+
+        .send-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .clickable-link {
+            color: #5d6bff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .chat-container {
+                width: 95%;
+                height: 100vh;
+                border-radius: 0;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Support Clients Uber</h1>
+            <div id="user-email" class="user-email"></div>
+        </div>
+
+        <div id="conversation"></div>
+
+        <div class="message-input-container">
+            <textarea id="message" placeholder="Écrivez votre message..." required rows="1"></textarea>
+            <button onclick="sendMessage()" class="send-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
+            authDomain: "uber-10bff.firebaseapp.com",
+            databaseURL: "https://uber-10bff-default-rtdb.firebaseio.com",
+            projectId: "uber-10bff",
+            storageBucket: "uber-10bff.firebasestorage.app",
+            messagingSenderId: "997089945771",
+            appId: "1:997089945771:web:55496eb4fb702eabce2fee"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Fonction pour convertir les liens en éléments cliquables
+        function convertLinksToClickable(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return `<a href="${url}" class="clickable-link" target="_blank">${url}</a>`;
+            });
+        }
+
+        // Ajustement dynamique de la hauteur du textarea
+        document.getElementById('message').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        function showChatSection() {
+            document.querySelector('.chat-container').style.display = 'flex';
+        }
+
+        // Vérification de l'état de connexion
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                showChatSection();
+                document.getElementById('user-email').textContent = user.email;
+                listenToConversation(user.uid);
+            } else {
+                // Rediriger vers une page de login si nécessaire
+                window.location.href = 'login.html';
+            }
+        });
+
+        function sendMessage() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                alert('Veuillez saisir un message');
+                return;
+            }
+
+            const conversationRef = database.ref('support-conversations/' + user.uid);
+            const newMessageRef = conversationRef.push();
+            newMessageRef.set({
+                sender: user.email,
+                message: message,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                type: 'user'
+            });
+
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+        }
+
+        function listenToConversation(userId) {
+            const conversationRef = database.ref('support-conversations/' + userId);
+            
+            document.getElementById('conversation').innerHTML = '';
+
+            conversationRef.on('child_added', function(snapshot) {
+                const message = snapshot.val();
+                displayMessage(message);
+            });
+        }
+
+        function displayMessage(message) {
+            const conversationDiv = document.getElementById('conversation');
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message-container');
+            
+            const messageElement = document.createElement('div');
+            const formattedMessage = convertLinksToClickable(
+                `<strong>${message.sender}</strong>: ${message.message}`
+            );
+            messageElement.innerHTML = formattedMessage;
+            messageElement.classList.add(
+                message.type === 'admin' ? 'admin-message' : 'user-message'
+            );
+
+            messageContainer.appendChild(messageElement);
+            conversationDiv.appendChild(messageContainer);
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
+    </script>
+</body>
+</htm

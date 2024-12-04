@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Portfolio d'Investissements</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .dashboard-header {
+      background: var(--primary-gradient);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    }
+
+    .investment-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+    }
+
+    .investment-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-gradient);
+      transition: width 0.5s ease-out;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
+
+    .notification {
+      animation: slideIn 0.3s ease-out;
+      background: var(--primary-gradient);
+    }
+
+    .balance-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .loading {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .empty-state img {
+      width: 200px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="dashboard-header text-white shadow-lg">
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-4xl font-bold text-center mb-2">Mon Portfolio</h1>
+      <p class="text-center text-white/80">Suivez vos investissements en temps réel</p>
+    </div>
+  </header>
+
+  <div class="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <i class="fas fa-clock text-gray-500"></i>
+          <span id="lastUpdate" class="text-sm text-gray-600"></span>
+        </div>
+        <div class="balance-card px-6 py-3">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-wallet text-indigo-500"></i>
+            <span id="userBalance" class="text-lg font-semibold text-gray-900"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container mx-auto px-4 py-8">
+    <div id="investmentsContainer" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <!-- Les cartes d'investissement seront ajoutées ici -->
+    </div>
+  </main>
+
+  <div class="loading fixed inset-0 hidden items-center justify-center z-50" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+  
+  <div class="notification fixed top-4 right-4 p-4 rounded-lg text-white shadow-lg z-50 hidden" id="notification"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import { 
+        getAuth, 
+        onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { 
+        getDatabase, 
+        ref, 
+        onValue,
+        query,
+        orderByChild,
+        equalTo,
+        update,
+        get,
+        runTransaction
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
+
+    // Configuration Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
+        authDomain: "uber-10bff.firebaseapp.com",
+        databaseURL: "https://uber-10bff-default-rtdb.firebaseio.com",
+        projectId: "uber-10bff",
+        storageBucket: "uber-10bff.firebasestorage.app",
+        messagingSenderId: "997089945771",
+        appId: "1:997089945771:web:55496eb4fb702eabce2fee"
+    };
+
+    // Initialiser Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // Variables globales
+    let currentUser = null;
+    let checkRevenueInterval = null;
+
+    // Mapping des produits
+    const productData = {
+      product0: { name: 'GL1', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732061023-sans-titre-2.png' },
+      product1: { name: 'VG2', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732061806-images.jpeg' },
+      product2: { name: 'WXC', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062128-1444x920-amazon-de-nombreux-bons-plans-gratuits-a-saisir-ce-week-end.jpeg' },
+      product3: { name: 'LMO', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062405-amazon-7.jpg' },
+      product4: { name: 'OGT', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062501-images-1.jpeg' },
+      product5: { name: 'PITE', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062747-images-2.jpeg' },
+      product6: { name: 'XFR', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062878-grandamazon9-fr.jpg' },
+      product7: { name: 'BCH', image: 'https://image.noelshack.com/fichiers/2024/46/1/1731347964-images.jpeg' },
+      product8: { name: 'H-2', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732063153-amazon-1799020.jpg' },
+      product9: { name: 'H-3', image: 'https://image.noelshack.com/fichiers/2024/47/3/1732063182-images-3.jpeg' }
+    };
+
+    function showLoading(show = true) {
+      document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+    }
+
+    function showNotification(message, isError = false) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.display = 'block';
+      notification.style.background = isError ? '#ef4444' : '#10b981';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+
+    function formatDate(timestamp) {
+      return new Date(timestamp).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    function calculateProgress(startDate, totalDays) {
+      const now = Date.now();
+      const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+      return Math.min((daysPassed / totalDays) * 100, 100);
+    }
+
+    function calculateTotalEarned(investment) {
+      const daysPassed = Math.floor((Date.now() - investment.startDate) / (1000 * 60 * 60 * 24));
+      return Math.min(daysPassed, investment.totalDays) * investment.dailyRevenue;
+    }
+
+    function updateLastUpdateTime() {
+      const lastUpdate = document.getElementById('lastUpdate');
+      lastUpdate.textContent = `Dernière mise à jour: ${new Date().toLocaleTimeString()}`;
+    }
+
+    function updateUserInterface(userData) {
+      const container = document.getElementById('investmentsContainer');
+      container.innerHTML = '';
+
+      if (!userData || !userData.investments || Object.keys(userData.investments).length === 0) {
+        container.innerHTML = `
+          <div class="empty-state col-span-full">
+            <img src="/api/placeholder/200/200" alt="No investments">
+            <h2 class="text-2xl font-semibold text-gray-700 mt-6 mb-2">Aucun investissement</h2>
+            <p class="text-gray-500">Commencez à investir pour voir vos produits ici.</p>
+          </div>
+        `;
+        return;
+      }
+
+      Object.entries(userData.investments).forEach(([productId, investment]) => {
+        const product = productData[productId];
+        if (!product) return;
+
+        const progress = calculateProgress(investment.startDate, investment.totalDays);
+        const totalEarned = calculateTotalEarned(investment);
+        const remainingDays = Math.max(0, investment.totalDays - Math.floor((Date.now() - investment.startDate) / (1000 * 60 * 60 * 24)));
+
+        const card = document.createElement('div');
+        card.className = 'investment-card p-6';
+        card.innerHTML = `
+          <div class="flex items-center mb-6">
+            <div class="relative w-16 h-16 rounded-xl overflow-hidden">
+              <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.src='/api/placeholder/64/64'">
+            </div>
+            <div class="ml-4 flex-1">
+              <div class="flex justify-between items-start">
+                <h3 class="text-xl font-semibold text-gray-800">${product.name}</h3>
+                <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                  ${investment.count} unité${investment.count > 1 ? 's' : ''}
+                </span>
+              </div>
+              <p class="text-sm text-gray-500 mt-1">
+                <i class="fas fa-calendar-alt mr-1"></i> 
+                ${formatDate(investment.startDate)}
+              </p>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="stat-card p-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm text-gray-500">Montant investi</h4>
+                <i class="fas fa-coins text-indigo-400"></i>
+              </div>
+              <p class="text-lg font-semibold mt-1">${investment.price.toLocaleString()} FCFA</p>
+            </div>
+            
+            <div class="stat-card p-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm text-gray-500">Revenus/jour</h4>
+                <i class="fas fa-chart-line text-green-400"></i>
+              </div>
+              <p class="text-lg font-semibold text-green-600 mt-1">+${investment.dailyRevenue.toLocaleString()} FCFA</p>
+            </div>
+            
+            <div class="stat-card p-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm text-gray-500">Total gagné</h4>
+                <i class="fas fa-piggy-bank text-green-400"></i>
+              </div>
+              <p class="text-lg font-semibold text-green-600 mt-1">+${totalEarned.toLocaleString()} FCFA</p>
+            </div>
+            
+            <div class="stat-card p-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm text-gray-500">Jours restants</h4>
+                <i class="fas fa-hourglass-half text-indigo-400"></i>
+              </div>
+              <p class="text-lg font-semibold mt-1">${remainingDays} jour${remainingDays > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+
+          <div class="relative pt-2">
+            <div class="flex justify-between text-sm text-gray-500 mb-2">
+              <span>Progression</span>
+              <span>${Math.round(progress)}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${progress}%"></div>
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+
+      document.getElementById('userBalance').innerHTML = `
+        ${userData.balance?.toLocaleString() || 0} FCFA
+      `;
+    }
+
+    async function checkAndCreditRevenue(userId, userData) {
+      try {
+        const now = Date.now();
+        let totalRevenue = 0;
+        const updates = {};
+        let revenuesCredited = false;
+
+        if (userData.investments) {
+          for (const [productId, investment] of Object.entries(userData.investments)) {
+            const hoursSinceLastRevenue = (now - investment.lastRevenueDate) / (1000 * 60 * 60);
+            
+            if (hoursSinceLastRevenue >= 24) {
+              const daysPassed = Math.floor((now - investment.startDate) / (1000 * 60 * 60 * 24));
+              
+              if (daysPassed <= investment.totalDays) {
+                const daysToCredit = Math.floor(hoursSinceLastRevenue / 24);
+                const revenueToAdd = investment.dailyRevenue * daysToCredit * investment.count;
+                
+                totalRevenue += revenueToAdd;
+                
+                const newLastRevenueDate = investment.lastRevenueDate + (daysToCredit * 24 * 60 * 60 * 1000);
+                updates[`users/${userId}/investments/${productId}/lastRevenueDate`] = newLastRevenueDate;
+                revenuesCredited = true;
+              }
+            }
+          }
+        }
+
+        if (totalRevenue > 0) {
+          const newBalance = (userData.balance || 0) + totalRevenue;
+          updates[`users/${userId}/balance`] = newBalance;
+          
+          await update(ref(database), updates);
+          
+          showNotification(`+${totalRevenue.toLocaleString()} FCFA de revenus crédités !`, false);
+          updateLastUpdateTime();
+        } else if (revenuesCredited) {
+          await update(ref(database), updates);
+          updateLastUpdateTime();
+        }
+      } catch (error) {
+        console.error("Erreur lors du crédit des revenus:", error);
+        showNotification("Erreur lors du crédit des revenus", true);
+      }
+    }
+
+    // Gestion de l'authentification
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        showLoading(true);
+        
+        // Écouter les changements dans les données utilisateur
+        const userRef = ref(database, `users/${user.uid}`);
+        onValue(userRef, (snapshot) => {
+          const userData = snapshot.val() || {};
+          
+          // Mettre à jour l'interface
+          updateUserInterface(userData);
+          
+          // Vérifier et créditer les revenus
+          checkAndCreditRevenue(user.uid, userData);
+          
+          showLoading(false);
+        }, (error) => {
+          console.error("Erreur lors du chargement des données:", error);
+          showNotification("Erreur lors du chargement des données", true);
+          showLoading(false);
+        });
+
+        // Configurer la vérification périodique des revenus
+        if (checkRevenueInterval) {
+          clearInterval(checkRevenueInterval);
+        }
+        checkRevenueInterval = setInterval(() => {
+          const userRef = ref(database, `users/${user.uid}`);
+          onValue(userRef, (snapshot) => {
+            const userData = snapshot.val() || {};
+            checkAndCreditRevenue(user.uid, userData);
+          }, { onlyOnce: true });
+        }, 5 * 60 * 1000); // Vérifier toutes les 5 minutes
+      } else {
+        currentUser = null;
+        if (checkRevenueInterval) {
+          clearInterval(checkRevenueInterval);
+        }
+        showNotification("Veuillez vous connecter pour voir vos investissements", true);
+        updateUserInterface(null);
+      }
+    });
+
+    // Nettoyer l'intervalle quand la page est fermée
+    window.addEventListener('beforeunload', () => {
+      if (checkRevenueInterval) {
+        clearInterval(checkRevenueInterval);
+      }
+    });
+  </script>
+</body>
+</html>

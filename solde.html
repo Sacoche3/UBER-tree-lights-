@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Compte UBER</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+       body {
+            background: linear-gradient(135deg, #e6f2ff 0%, #b3d9ff 100%);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Section pour les animations de cercles */
+        .circle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.4;
+            filter: blur(10px);
+            animation: moveCircle linear infinite;
+            transition: all 0.5s ease;
+        }
+
+        @keyframes moveCircle {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(50px, 50px) scale(1.2) rotate(180deg); }
+            100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+        }
+
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 105, 217, 0.1);
+        }
+
+        .card-gradient {
+            background: linear-gradient(to right, #0069D9, #0056b3);
+            box-shadow: 0 10px 25px rgba(0, 86, 179, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animation de pulse améliorée */
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 10px rgba(0, 105, 217, 0.3); 
+            }
+            50% { 
+                transform: scale(1.02); 
+                box-shadow: 0 0 20px rgba(0, 105, 217, 0.5); 
+            }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s infinite;
+        }
+
+        /* Modification des couleurs pour le thème bleu */
+        .text-theme {
+            color: #0069D9;
+        }
+
+        .bg-theme {
+            background-color: #0069D9;
+        }
+
+        .hover-theme:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+       </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-100">
+    <!-- En-tête -->
+    <header class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-green-600">UBER</h1>
+            <div class="flex items-center space-x-3">
+                
+                                  <!-- Nouveau bouton de service client dans l'en-tête -->
+                <button id="service-client-header-btn" class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-headset"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu principal --><main class="container mx-auto px-4 py-6 flex-grow">
+        <!-- Carte de solde principale -->
+        <div class="card-gradient text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden mb-6">
+            <div class="absolute top-0 right-0 opacity-20">
+                <i class="fas fa-wallet text-6xl"></i>
+            </div>
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 id="greeting" class="text-xl font-semibold">Bonjour, <span id="user-name">Utilisateur</span> 👋</h2>
+                        <p class="text-sm opacity-80">Bienvenue dans votre espace personnel</p>
+                    </div>
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-2xl text-white"></i>
+                    </div>
+                </div>
+                <div class="bg-white/20 rounded-2xl p-4">
+                    <span class="block text-sm opacity-80 mb-2">Solde actuel</span>
+                    <span id="user-balance" class="text-4xl font-bold">0 FCFA</span>
+                </div>
+            </div>
+        </div>
+
+    
+
+        <!-- Actions rapides -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <button id="portefeuille-btn" class="glassmorphism rounded-xl p-4 text-center hover:bg-green-50 transition">
+                <i class="fas fa-wallet text-green-600 text-2xl mb-2"></i>
+                <span class="block text-sm text-gray-700">Portefeuille</span>
+            </button>
+            <button id="recharge-btn" class="glassmorphism rounded-xl p-4 text-center hover:bg-yellow-50 transition">
+                <i class="fas fa-coins text-yellow-600 text-2xl mb-2"></i>
+                <span class="block text-sm text-gray-700">Recharge</span>
+            </button>
+            <button id="retrait-btn" class="glassmorphism rounded-xl p-4 text-center hover:bg-blue-50 transition">
+                <i class="fas fa-money-bill-wave text-blue-600 text-2xl mb-2"></i>
+                <span class="block text-sm text-gray-700">Retrait</span>
+            </button>
+        </div>
+
+       
+
+    <!-- Menu déroulant -->
+    <div id="dropdown-menu" class="fixed bottom-20 left-0 right-0 hidden dropdown-menu">
+        <div class="container mx-auto px-4">
+            <div class="glassmorphism rounded-3xl p-6 grid grid-cols-3 gap-4">
+                <button id="menu-portefeuille-btn" class="bg-green-50/50 p-3 rounded-xl flex flex-col items-center hover:bg-green-100 transition">
+                    <i class="fas fa-wallet text-green-500 mb-2 text-xl"></i>
+                    <span class="text-xs text-gray-700">Portefeuille</span>
+                </button>
+                <button id="menu-carte-btn" class="bg-yellow-50/50 p-3 rounded-xl flex flex-col items-center hover:bg-yellow-100 transition">
+                    <i class="fas fa-credit-card text-yellow-500 mb-2 text-xl"></i>
+                    <span class="text-xs text-gray-700">Ma Carte</span>
+                </button>
+                <button id="menu-recharge-btn" class="bg-green-50/50 p-3 rounded-xl flex flex-col items-center hover:bg-green-100 transition">
+                    <i class="fas fa-coins text-green-500 mb-2 text-xl"></i>
+                    <span class="text-xs text-gray-700">Recharge</span>
+                </button>
+                <button id="menu-retrait-btn" class="bg-yellow-50/50 p-3 rounded-xl flex flex-col items-center hover:bg-yellow-100 transition">
+                    <i class="fas fa-money-bill-wave text-yellow-500 mb-2 text-xl"></i>
+                    <span class="text-xs text-gray-700">Retrait</span>
+                </button>
+                <button id="menu-historique-retrait-btn" class="bg-green-50/50 p-3 rounded-xl flex flex-col items-center hover:bg-green-100 transition">
+                    <i class="fas fa-history text-green-500 mb-2 text-xl"></i>
+                    <span class="text-xs text-gray-700">Historique Retrait</span>
+                </button>
+                <button id="menu-historique-recharge-btn" class="bg-yellow-50/50 p-3 rounded-xl flex flex-col items-center hover:bg-yellow-100 transition">
+                    <i class="fas fa-history text-yellow-500 mb-2 text-xl"></i>
+                    <span class="text-xs text-gray-700">Historique Recharge</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation inférieure -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white shadow-2xl rounded-t-3xl">
+        <div class="flex justify-around py-4">
+            <button id="nav-historique-btn" class="text-green-600 hover:text-green-800">
+                <i class="fas fa-history text-xl"></i>
+            </button>
+            <button id="nav-produits-btn" class="text-green-600 hover:text-green-800">
+                <i class="fas fa-box-open text-xl"></i>
+            </button>
+            <button id="main-menu-toggle" class="bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center -mt-6 shadow-lg animate-pulse-slow">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button id="nav-equipe-btn" class="text-green-600 hover:text-green-800">
+                <i class="fas fa-users text-xl"></i>
+            </button>
+            <button id="nav-investissement-btn" class="text-green-600 hover:text-green-800">
+                <i class="fas fa-chart-line text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal Service Client -->
+    <div id="service-client-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold text-green-800 mb-4">Service Client</h2>
+            <p class="text-gray-600 mb-6">Besoin d'aide ? Contactez notre équipe de support.</p>
+            
+            <a href="message.html" class="block bg-yellow-100 p-3 rounded-lg hover:bg-yellow-200 transition mb-4">
+                <i class="fas fa-envelope text-yellow-600 mr-3"></i>
+                Besoin d'aide ?
+            </a>
+            
+        </div>
+    </div>
+
+
+    <script type="module">
+   // Importations Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { 
+    getAuth, 
+    onAuthStateChanged, 
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut
+} from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+import { 
+    getDatabase, 
+    ref, 
+    set,
+    get,
+    query, 
+    orderByChild, 
+    limitToLast
+} from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+// Configuration Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
+    authDomain: "uber-10bff.firebaseapp.com",
+    databaseURL: "https://uber-10bff-default-rtdb.firebaseio.com",
+    projectId: "uber-10bff",
+    storageBucket: "uber-10bff.firestorage.app",
+    messagingSenderId: "997089945771",
+    appId: "1:997089945771:web:55496eb4fb702eabce2fee"
+};
+
+// Initialisation de Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// Fonctions utilitaires
+function navigateTo(page) {
+    window.location.href = page;
+}
+
+function toggleDropdownMenu() {
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    dropdownMenu.classList.toggle('hidden');
+}
+
+function updateUserDisplayName(userName) {
+    const userNameElements = document.querySelectorAll('#user-name');
+    userNameElements.forEach(element => {
+        if (element) {
+            element.textContent = userName || 'Utilisateur';
+        }
+    });
+}
+
+// Fonctions de gestion d'authentification
+async function registerUser(email, password, name, telephone) {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await set(ref(database, 'users/' + user.uid), {
+            name: name,
+            email: email,
+            telephone: telephone,
+            balance: 0,
+            registeredAt: new Date().toISOString()
+        });
+
+        updateUserDisplayName(name);
+        window.location.href = 'dashboard.html';
+    } catch (error) {
+        console.error("Erreur d'inscription :", error);
+        alert("Erreur d'inscription : " + error.message);
+    }
+}
+
+async function loginUser(email, password) {
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = 'dashboard.html';
+    } catch (error) {
+        console.error("Erreur de connexion :", error);
+        alert("Erreur de connexion : " + error.message);
+    }
+}
+
+async function logoutUser() {
+    try {
+        await signOut(auth);
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error("Erreur de déconnexion :", error);
+    }
+}
+
+// Gestion de l'état d'authentification
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        try {
+            const userRef = ref(database, 'users/' + user.uid);
+            const snapshot = await get(userRef);
+            const userData = snapshot.val();
+
+            if (userData) {
+                updateUserDisplayName(userData.name || userData.username);
+
+                const balanceElement = document.getElementById('user-balance');
+                if (balanceElement) {
+                    balanceElement.textContent = `${userData.balance || 0} FCFA`;
+                }
+
+                const transactionsRef = query(
+                    ref(database, `users/${user.uid}/transactions`), 
+                    orderByChild('timestamp'), 
+                    limitToLast(5)
+                );
+                const transactionsSnapshot = await get(transactionsRef);
+                const transactionsData = transactionsSnapshot.val();
+
+                if (transactionsData) {
+                    const transactions = Object.values(transactionsData).map(transaction => ({
+                        type: transaction.type,
+                        amount: transaction.amount,
+                        description: transaction.description,
+                        date: new Date(transaction.timestamp).toLocaleDateString()
+                    }));
+                    renderTransactions(transactions);
+                }
+            }
+        } catch (error) {
+            console.error("Erreur de récupération des données utilisateur:", error);
+        }
+    } else {
+        if (window.location.pathname !== '/index.html' && 
+            window.location.pathname !== '/inscription.html') {
+            window.location.href = 'index.html';
+        }
+    }
+});
+
+// Fonction de service client
+function openServiceClient() {
+    const modal = document.getElementById('service-client-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeServiceClient() {
+    const modal = document.getElementById('service-client-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// Événements du DOM
+function setupEventListeners() {
+    const inscriptionForm = document.getElementById('inscription-form');
+    if (inscriptionForm) {
+        inscriptionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('nom').value;
+            const email = document.getElementById('email').value;
+            const telephone = document.getElementById('telephone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alert("Les mots de passe ne correspondent pas");
+                return;
+            }
+
+            registerUser(email, password, name, telephone);
+        });
+    }
+
+    // Configuration des boutons de navigation
+    const navigationButtons = [
+        { id: 'portefeuille-btn', page: 'portefeuille.html' },
+        { id: 'recharge-btn', page: 'recharge.html' },
+        { id: 'retrait-btn', page: 'retrait.html' },
+        { id: 'menu-portefeuille-btn', page: 'portefeuille.html' },
+        { id: 'menu-carte-btn', page: 'ma-carte.html' },
+        { id: 'menu-recharge-btn', page: 'recharge.html' },
+        { id: 'menu-retrait-btn', page: 'retrait.html' },
+        { id: 'menu-historique-retrait-btn', page: 'historique-retrait.html' },
+        { id: 'menu-historique-recharge-btn', page: 'historique-recharge.html' },
+        { id: 'nav-historique-btn', page: 'historique.html' },
+        { id: 'nav-produits-btn', page: 'produits.html' },
+        { id: 'nav-equipe-btn', page: 'equipe.html' },
+        { id: 'nav-investissement-btn', page: 'investissement.html' }
+    ];
+
+    navigationButtons.forEach(button => {
+        const element = document.getElementById(button.id);
+        if (element) {
+            element.addEventListener('click', () => navigateTo(button.page));
+        }
+    });
+
+    // Événements spécifiques
+    const mainMenuToggle = document.getElementById('main-menu-toggle');
+    if (mainMenuToggle) {
+        mainMenuToggle.addEventListener('click', toggleDropdownMenu);
+    }
+
+    const serviceClientHeaderBtn = document.getElementById('service-client-header-btn');
+    if (serviceClientHeaderBtn) {
+        serviceClientHeaderBtn.addEventListener('click', openServiceClient);
+    }
+
+    const notificationsBtn = document.getElementById('notifications-btn');
+    if (notificationsBtn) {
+        notificationsBtn.addEventListener('click', () => {
+            alert('Vous avez 2 nouvelles notifications !');
+        });
+    }
+
+    const settingsBtn = document.getElementById('settings-btn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => navigateTo('parametres.html'));
+    }
+}
+
+// Initialisation des événements
+document.addEventListener('DOMContentLoaded', setupEventListeners);
+
+// Fonctions globales
+window.openServiceClient = openServiceClient;
+window.closeServiceClient = closeServiceClient;
+window.navigateTo = navigateTo;
+
+// Placeholder pour renderTransactions (à implémenter)
+function renderTransactions(transactions) {
+    // Implémentez la logique de rendu des transactions
+    console.log('Transactions:', transactions);
+}
+</script>
+
+
+    <script type="module">
+        function createAnimatedCircles() {
+    const container = document.getElementById('circle-container');
+    const blueColors = ['#0069D9', '#0056b3', '#1E90FF', '#4682B4', '#87CEFA'];
+    const sizes = [50, 80, 120, 200];
+
+    for (let i = 0; i < 8; i++) {
+        const circle = document.createElement('div');
+        circle.classList.add('circle');
+
+        // Propriétés aléatoires
+        const size = sizes[Math.floor(Math.random() * sizes.length)];
+        const color = blueColors[Math.floor(Math.random() * blueColors.length)];
+        const top = Math.random() * window.innerHeight;
+        const left = Math.random() * window.innerWidth;
+        const animationDuration = 10 + Math.random() * 10;
+
+        circle.style.width = `${size}px`;
+        circle.style.height = `${size}px`;
+        circle.style.backgroundColor = color;
+        circle.style.top = `${top}px`;
+        circle.style.left = `${left}px`;
+        circle.style.animationDuration = `${animationDuration}s`;
+
+        container.appendChild(circle);
+    }
+}
+
+// Appeler la fonction de création des cercles
+document.addEventListener('DOMContentLoaded', createAnimatedCircles);
+</script>
+</body>
+</html>

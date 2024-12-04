@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Mon Réseau</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f8;
+        }
+        .card {
+            background-color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-radius: 16px;
+        }
+        .stat-card {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-md">
+        <div class="card p-6 space-y-6">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-800">Mon Équipe</h1>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">Niveau</span>
+                    <span id="teamLevel" class="font-bold text-purple-600">1</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="stat-card p-4 rounded-lg text-center">
+                    <h3 class="text-xs text-gray-500 mb-1">Membres</h3>
+                    <div id="teamCount" class="text-2xl font-bold gradient-text">0</div>
+                </div>
+                <div class="stat-card p-4 rounded-lg text-center">
+                    <h3 class="text-xs text-gray-500 mb-1">Bonus Total</h3>
+                    <div id="totalBonus" class="text-2xl font-bold text-green-600">0 FCFA</div>
+                </div>
+            </div>
+
+            <div class="flex space-x-2">
+                <button id="showTeamButton" class="flex-1 bg-indigo-500 text-white py-3 rounded-lg hover:bg-indigo-600 transition-colors">
+                    Voir mes équipes
+                </button>
+                <button id="claimBonusButton" class="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
+                    Réclamer Bonus
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Code de parrainage</label>
+                    <div class="flex">
+                        <input 
+                            type="text" 
+                            id="referralCode" 
+                            readonly 
+                            class="flex-grow bg-gray-100 p-2 rounded-l-lg text-gray-800"
+                        >
+                        <button 
+                            id="copyReferralCodeBtn" 
+                            class="bg-gray-200 px-4 rounded-r-lg hover:bg-gray-300 transition-colors"
+                        >
+                            📋
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Lien de parrainage</label>
+                    <div class="flex">
+                        <input 
+                            type="text" 
+                            id="referralLink" 
+                            readonly 
+                            class="flex-grow bg-gray-100 p-2 rounded-l-lg text-gray-800 truncate"
+                        >
+                        <button 
+                            id="copyReferralLinkBtn" 
+                            class="bg-gray-200 px-4 rounded-r-lg hover:bg-gray-300 transition-colors"
+                        >
+                            🔗
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale pour les membres de l'équipe -->
+    <div id="teamModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div class="bg-white w-full max-w-md mx-4 rounded-lg p-6 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Mes Équipes</h2>
+                <button id="closeTeamModalBtn" class="text-gray-500 hover:text-gray-800">
+                    ✖
+                </button>
+            </div>
+            <div id="teamMembersContainer">
+                <!-- Les membres seront ajoutés dynamiquement ici -->
+            </div>
+        </div>
+    </div>
+ 
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import { 
+        getAuth, 
+        onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { 
+        getDatabase, 
+        ref, 
+        onValue,
+        query,
+        orderByChild,
+        equalTo,
+        update,
+        get,
+        runTransaction
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
+
+    // Configuration Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
+        authDomain: "uber-10bff.firebaseapp.com",
+        databaseURL: "https://uber-10bff-default-rtdb.firebaseio.com",
+        projectId: "uber-10bff",
+        storageBucket: "uber-10bff.firebasestorage.app",
+        messagingSenderId: "997089945771",
+        appId: "1:997089945771:web:55496eb4fb702eabce2fee"
+    };
+
+    // Initialisation Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const database = getDatabase(app);
+
+    // Variables globales
+    let teamMembers = [];
+    let currentUser = null;
+    let totalTeamBonus = 0;
+
+    // Fonctions utilitaires
+    function updateTeamStats(members) {
+        // Filtrer les membres dont le bonus n'a pas été réclamé par le parrain
+        const unclaimedMembers = members.filter(member => !member.referralBonusPaidOut);
+        
+        document.getElementById('teamCount').textContent = unclaimedMembers.length;
+        document.getElementById('teamLevel').textContent = Math.floor(unclaimedMembers.length / 5) + 1;
+        
+        // Calculer le bonus de parrainage uniquement pour les membres non payés
+        totalTeamBonus = unclaimedMembers.reduce((sum, member) => {
+            return sum + ((member.balance || 0) * 0.12);
+        }, 0);
+
+        document.getElementById('totalBonus').textContent = 
+            totalTeamBonus.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' FCFA';
+    }
+
+    async function claimBonus() {
+        if (!currentUser || totalTeamBonus <= 0) {
+            alert('Aucun bonus disponible');
+            return;
+        }
+
+        try {
+            const userRef = ref(database, 'users/' + currentUser.uid);
+            
+            // Mise à jour du solde du parrain
+            await runTransaction(userRef, (currentData) => {
+                if (!currentData) return currentData;
+                
+                return {
+                    ...currentData,
+                    balance: (currentData.balance || 0) + totalTeamBonus
+                };
+            });
+
+            // Bloquer le solde de chaque filleul tant que le bonus n'est pas réclamé
+            const updatePromises = teamMembers.map(async (member) => {
+                const memberRef = ref(database, `users/${member.uid}`);
+                await update(memberRef, {
+                    referralBonusPaidOut: true, // Marquer comme payé
+                    balanceBlocked: true, // Nouveau flag pour bloquer le solde
+                    blockedReason: 'En attente de réclamation de bonus par le parrain'
+                });
+            });
+
+            await Promise.all(updatePromises);
+
+            // Créer un journal des bonus réclamés
+            const bonusLogRef = ref(database, `bonusLogs/${currentUser.uid}`);
+            await update(bonusLogRef, {
+                [`bonus_${Date.now()}`]: {
+                    amount: totalTeamBonus,
+                    timestamp: new Date().toISOString(),
+                    memberCount: unclaimedMembers.length
+                }
+            });
+
+            alert(`Bonus de ${totalTeamBonus.toLocaleString('fr-FR')} FCFA réclamé avec succès !`);
+            
+            // Réinitialiser le total des bonus
+            totalTeamBonus = 0;
+            updateTeamStats(teamMembers);
+        } catch (error) {
+            console.error('Erreur lors de la réclamation du bonus:', error);
+            alert('Erreur lors de la réclamation du bonus');
+        }
+    }
+
+    function displayTeamMembers(members) {
+        const container = document.getElementById('teamMembersContainer');
+        container.innerHTML = members.length > 0 
+            ? members.map(member => `
+                <div class="bg-gray-100 rounded-lg p-4 mb-3 ${member.referralBonusPaidOut ? 'opacity-50' : ''}">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-2xl text-indigo-600 font-bold">
+                                ${member.username.charAt(0).toUpperCase()}
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">${member.username}</h3>
+                            <p class="text-sm text-gray-500">
+                                Rejoint le ${new Date(member.createdAt).toLocaleDateString('fr-FR')}
+                            </p>
+                            <div class="text-green-600 font-medium">
+                                ${member.balanceBlocked 
+                                    ? `<span class="text-red-500">Solde bloqué: ${(member.balance || 0).toLocaleString('fr-FR')} FCFA</span>` 
+                                    : `${(member.balance || 0).toLocaleString('fr-FR')} FCFA`
+                                }
+                                ${member.referralBonusPaidOut 
+                                    ? `<span class="ml-2 text-xs text-gray-500">
+                                        (Bonus réclamé${member.balanceBlocked ? ' - Solde bloqué' : ''})
+                                       </span>` 
+                                    : ''
+                                }
+                            </div>
+                            ${member.balanceBlocked 
+                                ? `<p class="text-xs text-red-500 mt-1">
+                                    ${member.blockedReason || 'Solde temporairement bloqué'}
+                                   </p>` 
+                                : ''
+                            }
+                        </div>
+                    </div>
+                </div>
+            `).join('') 
+            : '<p class="text-center text-gray-500">Aucun membre dans votre équipe</p>';
+    }
+
+    // Reste du script identique (événements, authentification, etc.)
+</script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Transactions | MonService</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-color: #f4f7fa;
+            --card-color: #ffffff;
+            --text-dark: #1a1a2e;
+            --text-light: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .transaction-card {
+            background: var(--card-color);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .transaction-card:hover {
+            transform: scale(1.02);
+        }
+
+        .transaction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .transaction-amount {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .transaction-status {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-approved {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .transaction-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .transaction-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-light);
+        }
+
+        .transaction-detail i {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--card-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 600px) {
+            .transaction-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mes Retrait</h1>
+            <div class="user-info">
+                <img id="user-avatar" src="https://image.noelshack.com/fichiers/2024/48/5/1732842276-taxis-without-jobs-empty-streets-260nw-1501732967.jpg" alt="Avatar">
+                <span id="user-name">UBER</span>
+            </div>
+        </div>
+        
+        <div id="transaction-list" class="transaction-list">
+            <!-- Les transactions seront ajoutées ici dynamiquement -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+        import { 
+            getAuth, 
+            onAuthStateChanged 
+        } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+        import { 
+            getDatabase, 
+            ref, 
+            onValue,
+            update
+        } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
+            authDomain: "uber-10bff.firebaseapp.com",
+            databaseURL: "https://uber-10bff-default-rtdb.firebaseio.com",
+            projectId: "uber-10bff",
+            storageBucket: "uber-10bff.firebasestorage.app",
+            messagingSenderId: "997089945771",
+            appId: "1:997089945771:web:55496eb4fb702eabce2fee"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+
+        function formatAmount(amount) {
+            return amount.toLocaleString('fr-FR') + ' FCFA';
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getStatusClass(status) {
+            switch(status.toLowerCase()) {
+                case 'approuvé':
+                case 'approved':
+                    return 'status-approved';
+                case 'rejeté':
+                case 'rejected':
+                    return 'status-rejected';
+                default:
+                    return 'status-pending';
+            }
+        }
+
+        function createTransactionCard(transaction, id, isAdmin = false) {
+            const card = document.createElement('div');
+            card.className = 'transaction-card';
+            
+            card.innerHTML = `
+                <div class="transaction-header">
+                    <div class="transaction-amount">
+                        -${formatAmount(transaction.amount)}
+                    </div>
+                    <div class="transaction-status ${getStatusClass(transaction.status)}">
+                        ${transaction.status}
+                    </div>
+                </div>
+
+                <div class="transaction-details">
+                    <div class="transaction-detail">
+                        <i class="fas fa-calendar-alt"></i>
+                        ${formatDate(transaction.timestamp)}
+                    </div>
+                    <div class="transaction-detail">
+                        <i class="fas fa-receipt"></i>
+                        Frais: ${formatAmount(transaction.fees)}
+                    </div>
+                </div>
+
+                ${isAdmin && transaction.status === 'en attente' ? `
+                    <div class="admin-controls">
+                        <button onclick="approveTransaction('${id}')" class="approve-btn">
+                            Approuver
+                        </button>
+                        <button onclick="rejectTransaction('${id}')" class="reject-btn">
+                            Rejeter
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+            
+            return card;
+        }
+
+        async function updateTransactionStatus(transactionId, status) {
+            const userId = auth.currentUser.uid;
+            const transactionRef = ref(db, `users/${userId}/withdrawals/${transactionId}`);
+            await update(transactionRef, { status: status });
+        }
+
+        // Fonctions globales pour les boutons d'administration
+        window.approveTransaction = async (transactionId) => {
+            try {
+                await updateTransactionStatus(transactionId, 'approuvé');
+            } catch (error) {
+                console.error('Erreur lors de l\'approbation :', error);
+                alert('Impossible d\'approuver la transaction');
+            }
+        };
+
+        window.rejectTransaction = async (transactionId) => {
+            try {
+                await updateTransactionStatus(transactionId, 'rejeté');
+            } catch (error) {
+                console.error('Erreur lors du rejet :', error);
+                alert('Impossible de rejeter la transaction');
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Mise à jour des informations utilisateur
+            document.getElementById('user-name').textContent = user.displayName || 'Utilisateur';
+            
+            const withdrawalsRef = ref(db, `users/${user.uid}/withdrawals`);
+            
+            onValue(withdrawalsRef, (snapshot) => {
+                const transactionList = document.getElementById('transaction-list');
+                transactionList.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    transactionList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>Aucune transaction effectuée</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const transactions = [];
+                snapshot.forEach((childSnapshot) => {
+                    transactions.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+
+                transactions.sort((a, b) => b.timestamp - a.timestamp);
+
+                transactions.forEach((transaction) => {
+                    const isAdmin = user.email === 'admin@example.com';
+                    transactionList.appendChild(createTransactionCard(transaction, transaction.id, isAdmin));
+                });
+            }, (error) => {
+                console.error('Erreur de récupération des transactions :', error);
+                alert('Impossible de charger l\'historique des transactions');
+            });
+        });
+    </script>
+</body>
+</html>

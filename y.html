@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Mon Équipe</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .card {
+            background-color: #621400cb;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .gradient-bg {
+            background-image: linear-gradient(to right, #667eea, #764ba2, #6b8dd6, #8e37d7);
+        }
+        
+        .member-avatar {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            width: 3.5rem;
+            height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #6b46c1;
+        }
+        
+        .claim-button {
+            background-color: #48bb78;
+            color: white;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        
+        .claim-button:hover {
+            background-color: #38a169;
+        }
+        
+        .claim-button:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            background-color: #48bb78;
+            color: #fff;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center">
+    <button class="absolute top-4 right-4 bg-white text-purple-500 px-4 py-2 rounded-full shadow-md hover:bg-purple-500 hover:text-white transition-colors" onclick="logout()">Déconnexion</button>
+    
+    <div id="successMessage" class="fixed top-4 left-1/2 transform -translate-x-1/2 success-message hidden">Message de succès</div>
+    
+    <div class="card w-full max-w-4xl p-8">
+        <h1 class="text-2xl font-bold text-center mb-8 text-white">Mon Équipe</h1>
+
+        <!-- Liens de Parrainage -->
+        <div class="mb-8">
+            <h2 class="text-lg font-bold mb-4 text-white">Liens de Parrainage</h2>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="bg-gray-100 rounded-md p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-700" id="userReferralCode">Chargement...</span>
+                        <div class="copy-button cursor-pointer" onclick="copyText('userReferralCode')">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"></path>
+                                <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"></path>
+                            </svg>
+                            Copier Code
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-100 rounded-md p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <a href="#" id="referralLink" class="text-gray-700 hover:text-purple-500 transition-colors">Chargement...</a>
+                        <div class="copy-button cursor-pointer" onclick="copyText('referralLink')">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"></path>
+                                <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"></path>
+                            </svg>
+                            Copier Lien
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques de l'Équipe -->
+        <div class="mb-8 flex justify-between items-center">
+            <div class="grid grid-cols-3 gap-4 w-full stats-container">
+                <div class="bg-gray-100 rounded-md p-4 text-center">
+                    <h3 class="text-gray-600 font-medium mb-2">Membres de l'équipe</h3>
+                    <div class="text-2xl font-bold text-purple-500" id="teamCount">0</div>
+                </div>
+                <div class="bg-gray-100 rounded-md p-4 text-center">
+                    <h3 class="text-gray-600 font-medium mb-2">Bonus total</h3>
+                    <div class="text-2xl font-bold text-purple-500" id="totalBonus">0 FCFA</div>
+                </div>
+                <div class="bg-gray-100 rounded-md p-4 text-center">
+                    <h3 class="text-gray-600 font-medium mb-2">Niveau</h3>
+                    <div class="text-2xl font-bold text-purple-500" id="teamLevel">1</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bouton de Réclamation de Bonus -->
+        <div class="mb-4 flex justify-end">
+            <button 
+                id="claimBonusButton" 
+                class="claim-button px-4 py-2 rounded" 
+                onclick="claimTeamBonus()"
+            >
+                Réclamer Bonus
+            </button>
+        </div>
+
+        <!-- Conteneur des Membres de l'Équipe -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="teamContainer">
+            <!-- Les membres de l'équipe seront ajoutés ici dynamiquement -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut 
+        } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+        import { 
+            getDatabase, 
+            ref, 
+            onValue,
+            update,
+            query,
+            orderByChild,
+            equalTo,
+            runTransaction
+        } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
+            authDomain: "uber-10bff.firebaseapp.com",
+            databaseURL: "https://uber-10bff-default-rtdb.firebaseio.com",
+            projectId: "uber-10bff",
+            storageBucket: "uber-10bff.firebasestorage.app",
+            messagingSenderId: "997089945771",
+            appId: "1:997089945771:web:55496eb4fb702eabce2fee"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const database = getDatabase(app);
+
+        let totalTeamBonus = 0;
+        let teamMembers = [];
+
+        // Fonctions utilitaires
+        function formatFCFA(amount) {
+            return amount.toLocaleString('fr-FR', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }) + ' FCFA';
+        }
+
+        function showSuccessMessage(message) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = message;
+            successMessage.classList.remove('hidden');
+            setTimeout(() => {
+                successMessage.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Fonction de copie de texte
+        window.copyText = function(elementId) {
+            const textToCopy = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    showSuccessMessage('Copié avec succès !');
+                })
+                .catch((error) => {
+                    console.error('Erreur lors de la copie :', error);
+                    showSuccessMessage('Échec de la copie');
+                });
+        }
+
+        // Fonction de déconnexion
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error("Erreur de déconnexion:", error);
+            });
+        }
+
+        // Mettre à jour l'interface de l'équipe
+        function updateTeamUI(members) {
+            const teamContainer = document.getElementById('teamContainer');
+            const claimButton = document.getElementById('claimBonusButton');
+
+            if (members.length > 0) {
+                const totalTeamBalance = members.reduce((sum, member) => sum + (member.balance || 0), 0);
+                
+                totalTeamBonus = totalTeamBalance * 0.12;
+
+                document.getElementById('teamCount').textContent = members.length;
+                document.getElementById('totalBonus').textContent = formatFCFA(totalTeamBonus);
+                document.getElementById('teamLevel').textContent = Math.floor(members.length / 5) + 5;
+
+                claimButton.disabled = totalTeamBonus <= 0;
+
+                teamContainer.innerHTML = members
+                    .sort((a, b) => b.createdAt - a.createdAt)
+                    .map(member => `
+                        <div class="team-member bg-gray-100 rounded-md p-4">
+                            <div class="member-avatar mb-2">
+                                ${member.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="member-info">
+                                <div class="member-name font-bold">${member.username}</div>
+                                <div class="member-date text-sm text-gray-600">
+                                    Rejoint le ${new Date(member.createdAt).toLocaleDateString('fr-FR')}
+                                </div>
+                                <div class="member-status bg-green-200 text-green-800 rounded-full px-2 py-1 text-xs inline-block mt-1">
+                                    Membre actif
+                                </div>
+                                <div class="member-balance text-sm">
+                                    Solde: ${formatFCFA(member.balance || 0)}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+            } else {
+                teamContainer.innerHTML = `
+                    <div class="col-span-full text-center text-white">
+                        <p>Vous n'avez pas encore de membres dans votre équipe.</p>
+                        <p>Partagez votre code de parrainage pour développer votre réseau !</p>
+                    </div>
+                `;
+                
+                document.getElementById('teamCount').textContent = '0';
+                document.getElementById('totalBonus').textContent = '0 FCFA';
+                document.getElementById('teamLevel').textContent = '1';
+                
+                claimButton.disabled = true;
+            }
+        }
+
+        // Réclamation du bonus d'équipe
+        window.claimTeamBonus = async function() {
+            const currentUser = auth.currentUser;
+            const claimButton = document.getElementById('claimBonusButton');
+
+            if (!currentUser || totalTeamBonus <= 0) {
+                showSuccessMessage('Aucun bonus à réclamer');
+                return;
+            }
+
+            try {
+                claimButton.disabled = true;
+                claimButton.textContent = 'Traitement...';
+
+                const userRef = ref(database, `users/${currentUser.uid}`);
+                const bonusAmount = totalTeamBonus;
+
+                await runTransaction(userRef, (currentData) => {
+                    if (currentData) {
+                        currentData.balance = (currentData.balance || 0) + bonusAmount;
+                        
+                        if (!currentData.transactionHistory) {
+                            currentData.transactionHistory = [];
+                        }
+                        currentData.transactionHistory.push({
+                            type: 'team_bonus_claim',
+                            amount: bonusAmount,
+                            timestamp: Date.now()
+                        });
+
+                        // Réinitialiser les soldes des membres de l'équipe
+                        teamMembers.forEach(member => {
+                            update(ref(database, `users/${member.uid}`), {
+                                balance: 0
+                            });
+                        });
+                    }
+                    return currentData;
+                });
+
+                // Réinitialiser complètement le bonus et les soldes des membres
+                totalTeamBonus = 0;
+                teamMembers.forEach(member => member.balance = 0);
+
+                // Mettre à jour l'UI
+                updateTeamUI(teamMembers);
+
+                // Message de succès
+                showSuccessMessage(`Bonus de ${formatFCFA(bonusAmount)} réclamé avec succès !`);
+
+            } catch (error) {
+                console.error("Erreur lors de la réclamation du bonus:", error);
+                showSuccessMessage('Une erreur est survenue lors de la réclamation du bonus.');
+            } finally {
+                // Réactiver le bouton
+                claimButton.disabled = false;
+                claimButton.textContent = 'Réclamer Bonus';
+            }
+        }
+
+        // Authentification de l'utilisateur
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userRef = ref(database, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData && userData.referralCode) {
+                        document.getElementById('userReferralCode').textContent = userData.referralCode;
+
+                        // Génération automatique du lien de parrainage
+                        const referralLink = `${window.location.origin}/index.html?ref=${userData.referralCode}`;
+                        document.getElementById('referralLink').textContent = referralLink;
+                        document.getElementById('referralLink').href = referralLink;
+                    }
+                });
+
+                const teamQuery = query(
+                    ref(database, 'users'),
+                    orderByChild('referredBy'),
+                    equalTo(user.uid)
+                );
+
+                onValue(teamQuery, (snapshot) => {
+                    teamMembers = []; // Réinitialiser le tableau global
+                    if (snapshot.exists()) {
+                        snapshot.forEach((memberSnapshot) => {
+                            teamMembers.push({
+                                ...memberSnapshot.val(),
+                                uid: memberSnapshot.key
+                            });
+                        });
+                    }
+                    updateTeamUI(teamMembers);
+                }, (error) => {
+                    console.error("Erreur lors de l'écoute des membres:", error);
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

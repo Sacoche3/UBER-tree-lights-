@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoInvest - Plateforme de Placement</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #3498db;
+            --text-color: #333;
+            --background-color: #f4f6f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        #userBalance {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .investment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            padding: 20px 0;
+        }
+
+        .investment-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .investment-card:hover {
+            transform: scale(1.05);
+        }
+
+        .investment-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .investment-details {
+            padding: 20px;
+        }
+
+        .investment-details h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .investment-details .detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .invest-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .invest-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-3px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            z-index: 1500;
+        }
+
+        .notification.success {
+            background-color: #2ecc71;
+        }
+
+        .notification.error {
+            background-color: #e74c3c;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media screen and (max-width: 768px) {
+            .investment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1>AMAZON</h1>
+            <p>Avec AMAZON mon argent travail pour moi chaque moi </p>
+            <div id="userBalance">Solde: 0 FCFA</div>
+        </header>
+
+        <div class="investment-grid" id="investmentGrid">
+            <!-- Les cartes d'investissement seront générées dynamiquement -->
+        </div>
+
+        <div id="investModal" class="modal">
+            <div class="modal-content">
+                <h2>Confirmer l'investissement</h2>
+                <p id="modalInvestmentDetails"></p>
+                <button id="confirmInvestBtn" class="invest-btn">Confirmer</button>
+                <button onclick="closeModal()" class="invest-btn" style="background: #e74c3c; margin-top: 10px;">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cryptoOptions = [
+    { 
+        id: 1,
+        name: 'M-1', 
+        price: 2000, 
+        dailyReturn: 300, 
+        cycle: 32, 
+        totalReturn: 9600,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732061023-sans-titre-2.png'
+    },
+    { 
+        id: 2,
+        name: 'Bonus JEUDI', 
+        price: 10000, 
+        dailyReturn: 4000,  // Calculé : totalReturn / 4 jours
+        cycle: 4, 
+        totalReturn: 16000,
+        image: 'https://image.noelshack.com/fichiers/2024/47/4/1732171424-t-l-chargement.jpeg'
+    },
+    { 
+        id: 3,
+        name: 'VG2', 
+        price: 5000, 
+        dailyReturn: 600, 
+        cycle: 32, 
+        totalReturn: 19200,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732061806-images.jpeg'
+    },
+    { 
+        id: 4,
+        name: 'WXC',
+        price: 9500,
+        dailyReturn: 1000,
+        cycle: 31,
+        totalReturn: 31000,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062128-1444x920-amazon-de-nombreux-bons-plans-gratuits-a-saisir-ce-week-end.jpeg'
+    },
+    { 
+        id: 5,
+        name: 'LMO',
+        price: 15000,
+        dailyReturn: 1600,
+        cycle: 30,
+        totalReturn: 48000,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062405-amazon-7.jpg'
+    },
+    { 
+        id: 6,
+        name: 'OGT',
+        price: 30000,
+        dailyReturn: 3500,
+        cycle: 31,
+        totalReturn: 108500,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062501-images-1.jpeg'
+    },
+    { 
+        id: 7,
+        name: 'PITE',
+        price: 50000,
+        dailyReturn: 6000,
+        cycle: 23,
+        totalReturn: 138000,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062747-images-2.jpeg'
+    },
+    { 
+        id: 8,
+        name: 'XFR',
+        price: 100000,
+        dailyReturn: 15000,
+        cycle: 22,
+        totalReturn: 330000,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732062878-grandamazon9-fr.jpg'
+    },
+    { 
+        id: 9,
+        name: 'H-2',
+        price: 210000,
+        dailyReturn: 25000,
+        cycle: 24,
+        totalReturn: 600000,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732063153-amazon-1799020.jpg'
+    },
+    { 
+        id: 10,
+        name: 'H-3',
+        price: 585000,
+        dailyReturn: 65000,
+        cycle: 26,
+        totalReturn: 1690000,
+        image: 'https://image.noelshack.com/fichiers/2024/47/3/1732063182-images-3.jpeg'
+    }
+];
+
+        function renderInvestmentCards() {
+            const grid = document.getElementById('investmentGrid');
+            grid.innerHTML = ''; // Nettoyer la grille existante
+            
+            cryptoOptions.forEach((crypto) => {
+                const card = document.createElement('div');
+                card.classList.add('investment-card');
+                card.innerHTML = `
+                    <img src="${crypto.image}" alt="${crypto.name}">
+                    <div class="investment-details">
+                        <h3><i class="fas fa-coins"></i>${crypto.name}</h3>
+                        <div class="detail">
+                            <span>Prix</span>
+                            <strong>${crypto.price} FCFA</strong>
+                        </div>
+                        <div class="detail">
+                            <span>Revenus quotidien</span>
+                            <strong>${crypto.dailyReturn} FCFA</strong>
+                        </div>
+                        <div class="detail">
+                            <span>Cycle</span>
+                            <strong>${crypto.cycle} jours</strong>
+                        </div>
+                        <div class="detail">
+                            <span>Revenus total</span>
+                            <strong>${crypto.totalReturn} FCFA</strong>
+                        </div>
+                        <button onclick="openInvestModal(${crypto.id})" class="invest-btn">
+                            <i class="fas fa-rocket"></i> Investir
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        let selectedInvestment = null;
+
+        function openInvestModal(id) {
+            selectedInvestment = cryptoOptions.find(crypto => crypto.id === id);
+            const modal = document.getElementById('investModal');
+            const modalDetails = document.getElementById('modalInvestmentDetails');
+            modalDetails.innerHTML = `
+                Voulez-vous vraiment investir ${selectedInvestment.price} FCFA dans ${selectedInvestment.name} ?<br>
+                Revenus potentiels : ${selectedInvestment.totalReturn} FCFA sur ${selectedInvestment.cycle} jours
+            `;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('investModal');
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('confirmInvestBtn').addEventListener('click', () => {
+            if (selectedInvestment) {
+                invest(
+                    selectedInvestment.id,
+                    selectedInvestment.price,
+                    selectedInvestment.dailyReturn,
+                    selectedInvestment.cycle
+                );
+                closeModal();
+            }
+        });
+
+        // Initialisation
+        renderInvestmentCards();
+    </script>
+
+    <!-- Import des modules Firebase -->
+    <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import { 
+        getAuth, 
+        onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { 
+        getDatabase, 
+        ref, 
+        onValue,
+        query,
+        orderByChild,
+        equalTo,
+        update,
+        get,
+        runTransaction
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
+
+    // Configuration Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
+        authDomain: "uber-10bff.firebaseapp.com",
+        databaseURL: "https://uber-10bff-default-rtdb.firebaseio.com",
+        projectId: "uber-10bff",
+        storageBucket: "uber-10bff.firebasestorage.app",
+        messagingSenderId: "997089945771",
+        appId: "1:997089945771:web:55496eb4fb702eabce2fee"
+    };
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // Variables globales
+        let currentUser = null;
+        let userBalance = 0;
+        let userInvestments = {};
+
+        // Fonctions utilitaires
+        window.showLoading = function(show = true) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        window.showNotification = function(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${isError ? 'error' :'success'}`;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function updateUserInterface() {
+            document.getElementById('userBalance').textContent = `Solde: ${userBalance.toLocaleString()} FCFA`;
+        }
+
+        // Fonction d'investissement
+        window.invest = async function(productId, price, dailyRevenue, totalDays) {
+            if (!currentUser) {
+                showNotification("Veuillez vous connecter pour investir", true);
+                return;
+            }
+
+            try {
+                showLoading(true);
+
+                const currentInvestment = userInvestments[`product${productId}`] || { count: 0 };
+                if (currentInvestment.count >= 1) {
+                    showNotification("Vous avez déjà acheté ce produit", true);
+                    return;
+                }
+
+                if (userBalance < price) {
+                    showNotification("Solde insuffisant", true);
+                    return;
+                }
+
+                const newBalance = userBalance - price;
+                const investment = {
+                    productId: `product${productId}`,
+                    price,
+                    dailyRevenue,
+                    totalDays,
+                    startDate: Date.now(),
+                    count: (currentInvestment.count || 0) + 1,
+                    lastRevenueDate: Date.now()
+                };
+
+                const updates = {};
+                updates[`/users/${currentUser.uid}/balance`] = newBalance;
+                updates[`/users/${currentUser.uid}/investments/product${productId}`] = investment;
+                
+                await update(ref(database), updates);
+
+                userBalance = newBalance;
+                userInvestments[`product${productId}`] = investment;
+                updateUserInterface();
+                showNotification("Investissement réussi!");
+
+            } catch (error) {
+                console.error("Erreur lors de l'investissement:", error);
+                showNotification("Une erreur est survenue lors de l'investissement", true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Fonction pour créditer les revenus
+        async function creditDailyRevenue() {
+            if (!currentUser) return;
+
+            try {
+                const now = Date.now();
+                let totalRevenue = 0;
+
+                for (const [productId, investment] of Object.entries(userInvestments)) {
+                    const hoursSinceLastRevenue = (now - investment.lastRevenueDate) / (1000 * 60 * 60);
+                    
+                    if (hoursSinceLastRevenue >= 24) {
+                        const daysPassed = Math.floor((now - investment.startDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysPassed <= investment.totalDays) {
+                            totalRevenue += investment.dailyRevenue;
+                            investment.lastRevenueDate = now;
+                            
+                            await set(ref(database, `users/${currentUser.uid}/investments/${productId}/lastRevenueDate`), now);
+                        }
+                    }
+                }
+
+                if (totalRevenue > 0) {
+                    userBalance += totalRevenue;
+                    await set(ref(database, `users/${currentUser.uid}/balance`), userBalance);
+                    updateUserInterface();
+                    showNotification(`Revenus crédités: ${totalRevenue} FCFA`);
+                }
+            } catch (error) {
+                console.error("Erreur lors du crédit des revenus:", error);
+            }
+        }
+
+        // Gestion de l'authentification
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            
+            if (user) {
+                try {
+                    showLoading(true);
+                    
+                    onValue(ref(database, `users/${user.uid}`), (snapshot) => {
+                        const userData = snapshot.val() || {};
+                        userBalance = userData.balance || 0;
+                        userInvestments = userData.investments || {};
+                        updateUserInterface();
+                    });
+
+                    setInterval(creditDailyRevenue, 60000); // Vérifier toutes les minutes
+                    creditDailyRevenue(); // Vérifier immédiatement
+
+                } catch (error) {
+                    console.error("Erreur lors du chargement des données:", error);
+                    showNotification("Erreur lors du chargement des données", true);
+                } finally {
+                    showLoading(false);
+                }
+            } else {
+                // Réinitialiser les données
+                userBalance = 0;
+                userInvestments = {};
+                updateUserInterface();
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Gérer les erreurs de chargement des images
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.onerror = function() {
+                    this.src = 'https://via.placeholder.com/100';
+                };
+            });
+        });
+    </script>
+</body>
+</html>
