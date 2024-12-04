@@ -187,11 +187,18 @@
             }
         }
 
-        .error-message {
-            color: #ff4d4d;
+        .error-message, .success-message {
             text-align: center;
             margin-bottom: 15px;
             font-size: 0.9rem;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+        }
+
+        .success-message {
+            color: var(--uber-green);
         }
 
         @media (max-width: 480px) {
@@ -225,7 +232,7 @@
                     <i class="fas fa-lock"></i>
                     <input type="password" id="loginPassword" placeholder="Mot de passe" required />
                 </div>
-                <p class="error-message" id="loginError"></p>
+                <p id="loginError" class="error-message"></p>
                 <button type="submit" class="submit-btn">
                     Se connecter
                 </button>
@@ -253,7 +260,8 @@
                     <i class="fas fa-ticket"></i>
                     <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)" />
                 </div>
-                <p class="error-message" id="signupError"></p>
+                <p id="signupError" class="error-message"></p>
+                <p id="signupSuccess" class="success-message"></p>
                 <button type="submit" class="submit-btn">
                     Créer un compte
                 </button>
@@ -261,85 +269,12 @@
         </div>
     </div>
 
-    <script>
-        // Gestion des onglets
-        document.addEventListener('DOMContentLoaded', () => {
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const forms = document.querySelectorAll('.form-container form');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Désactiver tous les boutons
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    
-                    // Activer le bouton cliqué
-                    button.classList.add('active');
-
-                    // Masquer tous les formulaires
-                    forms.forEach(form => form.classList.remove('active'));
-
-                    // Afficher le formulaire correspondant
-                    const formType = button.getAttribute('data-form');
-                    const targetForm = document.querySelector(`form[data-type="${formType}"]`);
-                    targetForm.classList.add('active');
-                });
-            });
-
-            // Gestion de la soumission du formulaire de connexion
-            const loginForm = document.getElementById('loginFormData');
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const telephone = document.getElementById('loginTelephone').value;
-                const password = document.getElementById('loginPassword').value;
-                const errorElement = document.getElementById('loginError');
-
-                // Validation simple
-                if (!telephone || !password) {
-                    errorElement.textContent = 'Veuillez remplir tous les champs';
-                    return;
-                }
-
-                // Ici, vous pouvez ajouter la logique de connexion Firebase
-                console.log('Tentative de connexion', telephone);
-                errorElement.textContent = ''; // Réinitialiser les erreurs
-            });
-
-            // Gestion de la soumission du formulaire d'inscription
-            const signupForm = document.getElementById('signupFormData');
-            signupForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const username = document.getElementById('signupUsername').value;
-                const telephone = document.getElementById('signupTelephone').value;
-                const password = document.getElementById('signupPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                const errorElement = document.getElementById('signupError');
-
-                // Validation des champs
-                if (!username || !telephone || !password || !confirmPassword) {
-                    errorElement.textContent = 'Veuillez remplir tous les champs';
-                    return;
-                }
-
-                if (password !== confirmPassword) {
-                    errorElement.textContent = 'Les mots de passe ne correspondent pas';
-                    return;
-                }
-
-                // Ici, vous pouvez ajouter la logique d'inscription Firebase
-                console.log('Tentative d\'inscription', username, telephone);
-                errorElement.textContent = ''; // Réinitialiser les erreurs
-            });
-        });
-    </script>
-
-    <!-- Script Firebase (à ajouter) -->
     <script type="module">
-    // Import des modules Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-    // Configuration Firebase
+    // Configuration Firebase 
     const firebaseConfig = {
         apiKey: "AIzaSyCekNaQs88vn7Ed2IIO_fIrc3kk2lVfggM",
         authDomain: "uber-10bff.firebaseapp.com",
@@ -372,122 +307,34 @@
         }
     }
 
-    async function registerReferralCode(userId, code) {
-        try {
-            await set(ref(database, 'referralCodes/' + code), {
-                userId,
-                createdAt: Date.now()
+    // Gestion des onglets
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const forms = document.querySelectorAll('.form-container form');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                forms.forEach(form => form.classList.remove('active'));
+
+                const formType = button.getAttribute('data-form');
+                const targetForm = document.querySelector(`form[data-type="${formType}"]`);
+                targetForm.classList.add('active');
             });
-            return true;
-        } catch (error) {
-            console.error("Erreur d'enregistrement du code:", error);
-            return false;
-        }
-    }
-
-    async function updateUserBalance(userId, amount) {
-        try {
-            const userRef = ref(database, 'users/' + userId);
-            const snapshot = await get(userRef);
-            if (snapshot.exists()) {
-                const currentBalance = snapshot.val().balance || 0;
-                await set(ref(database, 'users/' + userId + '/balance'), currentBalance + amount);
-            }
-        } catch (error) {
-            console.error("Erreur de mise à jour du solde:", error);
-        }
-    }
-
-    // Nouvelles fonctions pour le code de parrainage
-    async function displayUserReferralCode() {
-        try {
-            const user = auth.currentUser;
-            
-            if (user) {
-                const userRef = ref(database, 'users/' + user.uid);
-                const snapshot = await get(userRef);
-                
-                if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    const referralCode = userData.referralCode;
-                    
-                    const referralCodeElement = document.getElementById('userReferralCode');
-                    
-                    if (referralCodeElement) {
-                        referralCodeElement.textContent = referralCode;
-                        
-                        const copyButton = document.getElementById('copyReferralCodeBtn');
-                        if (copyButton) {
-                            copyButton.addEventListener('click', () => {
-                                navigator.clipboard.writeText(referralCode).then(() => {
-                                    alert('Code de parrainage copié !');
-                                });
-                            });
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.error("Erreur lors de la récupération du code de parrainage :", error);
-        }
-    }
-
-    function generateReferralLink() {
-        const user = auth.currentUser;
-        if (user) {
-            const userRef = ref(database, 'users/' + user.uid);
-            get(userRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    const referralCode = snapshot.val().referralCode;
-                    const referralLink = `${window.location.origin}/index.html?ref=${referralCode}`;
-                    
-                    const referralLinkElement = document.getElementById('referralLink');
-                    if (referralLinkElement) {
-                        referralLinkElement.value = referralLink;
-                        
-                        const copyLinkButton = document.getElementById('copyReferralLinkBtn');
-                        if (copyLinkButton) {
-                            copyLinkButton.addEventListener('click', () => {
-                                navigator.clipboard.writeText(referralLink).then(() => {
-                                    alert('Lien de parrainage copié !');
-                                });
-                            });
-                        }
-                    }
-                }
-            });
-        }
-    }
-    
-    // Fonctions d'interface existantes
-    window.showLogin = function() {
-        document.getElementById("loginFormData").classList.add("active");
-        document.getElementById("signupFormData").classList.remove("active");
-        document.querySelectorAll(".tab-button").forEach((btn, index) => {
-            btn.classList.toggle("active", index === 0);
         });
-    }
-
-    window.showSignup = function() {
-        document.getElementById("signupFormData").classList.add("active");
-        document.getElementById("loginFormData").classList.remove("active");
-        document.querySelectorAll(".tab-button").forEach((btn, index) => {
-            btn.classList.toggle("active", index === 1);
-        });
-    }
-
-    function setLoading(form, isLoading) {
-        form.classList.toggle('loading', isLoading);
-    }    
+    });
 
     // Gestion du formulaire d'inscription
     document.getElementById("signupFormData").addEventListener("submit", async function(event) {
         event.preventDefault();
-        setLoading(this, true);
+        
         const errorElement = document.getElementById("signupError");
         const successElement = document.getElementById("signupSuccess");
-        errorElement.innerText = "";
-        successElement.innerText = "";
+        
+        errorElement.textContent = "";
+        successElement.textContent = "";
 
         try {
             const username = document.getElementById("signupUsername").value;
@@ -523,29 +370,23 @@
                 createdAt: Date.now()
             });
 
-            await registerReferralCode(user.uid, newReferralCode);
-
-            if (referrerData) {
-                await updateUserBalance(referrerData.userId, 0);
-                await updateUserBalance(user.uid, 0);
-                successElement.innerText = "Compte créé avec succès !";
-            }
-
+            successElement.textContent = "Compte créé avec succès !";
+            
             setTimeout(() => {
                 window.location.href = "solde.html";
             }, 1500);
 
         } catch (error) {
-            errorElement.innerText = error.message;
-        } finally {
-            setLoading(this, false);
+            errorElement.textContent = error.message;
         }
     });
 
     // Gestion du formulaire de connexion
     document.getElementById("loginFormData").addEventListener("submit", async function(event) {
         event.preventDefault();
-        setLoading(this, true);
+        
+        const errorElement = document.getElementById("loginError");
+        errorElement.textContent = "";
 
         try {
             const telephone = document.getElementById("loginTelephone").value;
@@ -555,9 +396,7 @@
             await signInWithEmailAndPassword(auth, email, password);
             window.location.href = "solde.html";
         } catch (error) {
-            document.getElementById("loginError").innerText = "Numéro ou mot de passe incorrect";
-        } finally {
-            setLoading(this, false);
+            errorElement.textContent = "Numéro ou mot de passe incorrect";
         }
     });
 
@@ -571,23 +410,6 @@
             referralCodeInput.value = referralCode;
         }
     });
-
-    // Gestion de l'authentification et affichage du code de parrainage
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            // Si la page courante est solde.html, afficher le code de parrainage
-            if (window.location.pathname.includes('solde.html')) {
-                displayUserReferralCode();
-                generateReferralLink();
-            }
-        } else {
-            // Rediriger vers la page de connexion si pas connecté
-            if (!window.location.pathname.includes('index.html')) {
-                window.location.href = 'index.html';
-            }
-        }
-    });
-    
-</script>
+    </script>
 </body>
 </html>
