@@ -196,15 +196,21 @@
                     <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" required />
                     <i class="fas fa-lock"></i>
                 </div>
-                
+                <div class="input-group">
+                    <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)" />
+                    <i class="fas fa-link"></i>
+                </div>
                 
                 <div class="referral-section" id="referralSection" style="display: none;">
-    <h3>Votre code de parrainage</h3>
-    <div class="input-group">
-        <span id="userReferralCode" class="referral-code-span"></span>
-        <i class="fas fa-link"></i>
-    </div>
-</div>
+                    <h3>Votre code de parrainage</h3>
+                    <div class="referral-code">
+                        <span id="userReferralCode"></span>
+                        <button type="button" class="copy-btn" id="copyReferralCode">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
                 <p class="error-message" id="signupError"></p>
                 <p class="success-message" id="signupSuccess"></p>
                 <button type="submit">
@@ -212,17 +218,6 @@
                     Créer un compte
                 </button>
             </form>
-        </div>
-
-        <!-- Section de code de parrainage -->
-        <div class="referral-section" id="referralSection" style="display: none;">
-            <h3>Votre code de parrainage</h3>
-            <div class="referral-code">
-                <span id="userReferralCode"></span>
-                <button class="copy-btn" id="copyReferralCode">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
         </div>
     </div>
 
@@ -239,8 +234,7 @@
         getDatabase, 
         ref, 
         set, 
-        get, 
-        child 
+        get 
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     // Configuration Firebase
@@ -259,13 +253,12 @@
     const auth = getAuth();
     const database = getDatabase(app);
 
-    // Génération du code de parrainage
+    // Fonctions utilitaires
     function generateReferralCode() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         return Array.from({ length: 6 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
     }
 
-    // Vérification du code de parrainage
     async function checkReferralCode(code) {
         if (!code) return null;
         try {
@@ -277,7 +270,6 @@
         }
     }
 
-    // Enregistrement du code de parrainage
     async function registerReferralCode(userId, code) {
         try {
             await set(ref(database, 'referralCodes/' + code), {
@@ -291,7 +283,6 @@
         }
     }
 
-    // Récupérer le code de parrainage de l'utilisateur
     async function getUserReferralCode() {
         try {
             const user = auth.currentUser;
@@ -311,7 +302,6 @@
         }
     }
 
-    // Afficher le code de parrainage
     async function displayReferralCode() {
         const referralCode = await getUserReferralCode();
         const referralSection = document.getElementById('referralSection');
@@ -322,7 +312,6 @@
             userReferralCodeElement.textContent = referralCode;
             referralSection.style.display = 'block';
 
-            // Copier le code de parrainage
             copyReferralCodeButton.addEventListener('click', () => {
                 navigator.clipboard.writeText(referralCode).then(() => {
                     alert('Code de parrainage copié !');
@@ -333,7 +322,7 @@
         }
     }
 
-    // Fonctions d'interface
+    // Gestion de l'interface
     window.showLogin = function() {
         document.getElementById("loginFormData").classList.add("active");
         document.getElementById("signupFormData").classList.remove("active");
@@ -350,7 +339,7 @@
         });
     }
 
-    // Gestion du formulaire d'inscription
+    // Gestion des soumissions de formulaires
     document.getElementById("signupFormData").addEventListener("submit", async function(event) {
         event.preventDefault();
         const errorElement = document.getElementById("signupError");
@@ -366,12 +355,11 @@
             const confirmPassword = document.getElementById("confirmPassword").value;
             const referralCode = document.getElementById("referralCode").value;
 
-            // Validation des données
+            // Validation
             if (password !== confirmPassword) {
                 throw new Error("Les mots de passe ne correspondent pas");
             }
 
-            // Vérification du code de parrainage
             let referrerData = null;
             if (referralCode) {
                 referrerData = await checkReferralCode(referralCode);
@@ -385,7 +373,7 @@
             const user = userCredential.user;
             const newReferralCode = generateReferralCode();
             
-            // Sauvegarde des données utilisateur
+            // Sauvegarde des données
             await set(ref(database, 'users/' + user.uid), {
                 username,
                 email,
@@ -396,12 +384,11 @@
                 createdAt: Date.now()
             });
 
-            // Enregistrement du code de parrainage
             await registerReferralCode(user.uid, newReferralCode);
 
             successElement.innerText = "Compte créé avec succès !";
 
-            // Redirection après création
+            // Redirection
             setTimeout(() => {
                 window.location.href = "solde.html";
             }, 1500);
@@ -411,7 +398,6 @@
         }
     });
 
-    // Gestion du formulaire de connexion
     document.getElementById("loginFormData").addEventListener("submit", async function(event) {
         event.preventDefault();
         const errorElement = document.getElementById("loginError");
@@ -443,13 +429,10 @@
     // Gestion de l'authentification 
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Utilisateur connecté, afficher le code de parrainage
             displayReferralCode();
         } else {
-            // Rediriger vers la page de connexion si pas connecté
             if (!window.location.pathname.includes('index.html')) {
-                window.location.href = 'index.html';
-            }
+                window.location.href = 'index.html';}
         }
     });
     </script>
