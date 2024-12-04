@@ -3,254 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="google-site-verification" content="XUVmGoIjqlJTmcx80iUEyo7zgYWVigIcdr0jinhIvwk" /> 
-    <title>REGISTER AMAZON</title>
+    <title>UBER - Connexion</title>
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-      /* Reset et base */
+        :root {
+            --uber-black: #000000;
+            --uber-white: #FFFFFF;
+            --uber-gray: #2C2C2C;
+            --uber-green: #00D66C;
+            --uber-green-hover: #00b359;
+            --uber-blue: #1da1f2;
+            --uber-gradient: linear-gradient(135deg, #000000 0%, #2C2C2C 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Uber Move', Arial, sans-serif;
+            transition: all 0.3s ease;
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--uber-black);
+            color: var(--uber-white);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            perspective: 1000px;
         }
 
-        /* Animation de cercle en arrière-plan */
-        .background-circles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            animation: rotate 20s linear infinite;
-            transform-origin: center;
-        }
-
-        .circle:nth-child(1) {
-            width: 200px;
-            height: 200px;
-            top: -100px;
-            right: -100px;
-            animation-duration: 25s;
-        }
-
-        .circle:nth-child(2) {
-            width: 300px;
-            height: 300px;
-            bottom: -150px;
-            left: -150px;
-            animation-duration: 35s;
-            animation-direction: reverse;
-        }
-
-        .circle:nth-child(3) {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            left: 10%;
-            animation-duration: 15s;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg) translateX(50px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(50px) rotate(-360deg); }
-        }
-
-        /* Container principal */
         .container {
-            position: relative;
-            z-index: 10;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
+            background: var(--uber-gray);
             border-radius: 20px;
-            padding: 30px;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 420px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: rotateX(10deg) scale(0.9);
+            opacity: 0;
+            animation: fadeInScale 0.6s forwards ease-out;
         }
 
-        /* Boutons d'onglets */
+        @keyframes fadeInScale {
+            to {
+                transform: rotateX(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--uber-green), var(--uber-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
         .tab-buttons {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .tab-button {
             flex: 1;
-            padding: 10px;
+            padding: 15px;
             background: transparent;
             border: none;
-            color: white;
+            color: rgba(255,255,255,0.6);
             font-weight: bold;
-            opacity: 0.6;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
+            position: relative;
+            cursor: pointer;
+            outline: none;
         }
 
         .tab-button.active {
-            opacity: 1;
-            border-bottom-color: white;
+            color: var(--uber-white);
         }
 
-        /* Formulaires */
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--uber-green);
+            transform: scaleX(1);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: var(--uber-white);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--uber-green);
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 214, 108, 0.3);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--uber-green);
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .input-group input:focus + i {
+            color: var(--uber-blue);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--uber-green);
+            border: none;
+            color: var(--uber-black);
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--uber-green-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 214, 108, 0.4);
+        }
+
         .form-container form {
             display: none;
         }
 
         .form-container form.active {
             display: block;
-            animation: fadeIn 0.5s ease;
+            animation: slideIn 0.5s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(50px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
         }
 
-        .input-group {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 15px 12px 40px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .input-group input::placeholder {
-            color: rgba(255,255,255,0.7);
-        }
-
-        .input-group i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: white;
-            opacity: 0.7;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-            border: none;
-            color: white;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-        }
-
-        .error-message, .success-message {
-            color: white;
+        .error-message {
+            color: #ff4d4d;
             text-align: center;
             margin-bottom: 15px;
-        } 
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                margin: 0 10px;
+                padding: 30px 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="background-animation"></div>
-
-    <div class="rotating-section">
-        <div class="rotating-circle circle1"></div>
-        <div class="rotating-circle circle2"></div>
-        <div class="rotating-circle circle3"></div>
-    </div>
-    
-    <div class="background-circles">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-    </div>
-
-
     <div class="container">
+        <div class="logo">
+            <h1>UBER</h1>
+        </div>
+
         <div class="tab-buttons">
-            <button class="tab-button active" onclick="showLogin()">Connexion</button>
-            <button class="tab-button" onclick="showSignup()">Inscription</button>
+            <button class="tab-button active" data-form="login">Connexion</button>
+            <button class="tab-button" data-form="signup">Inscription</button>
         </div>
 
         <div class="form-container">
             <!-- Formulaire de Connexion -->
-            <form id="loginFormData" class="active">
+            <form id="loginFormData" class="active" data-type="login">
                 <div class="input-group">
-                    <input type="tel" id="loginTelephone" placeholder="Numéro de téléphone" required />
                     <i class="fas fa-phone"></i>
+                    <input type="tel" id="loginTelephone" placeholder="Numéro de téléphone" required />
                 </div>
                 <div class="input-group">
-                    <input type="password" id="loginPassword" placeholder="Mot de passe" required />
                     <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Mot de passe" required />
                 </div>
                 <p class="error-message" id="loginError"></p>
-                <button type="submit">
-                    <i class="fas fa-sign-in-alt"></i>
+                <button type="submit" class="submit-btn">
                     Se connecter
                 </button>
             </form>
 
             <!-- Formulaire d'Inscription -->
-            <form id="signupFormData">
+            <form id="signupFormData" data-type="signup">
                 <div class="input-group">
-                    <input type="text" id="signupUsername" placeholder="Nom d'utilisateur" required />
                     <i class="fas fa-user"></i>
+                    <input type="text" id="signupUsername" placeholder="Nom d'utilisateur" required />
                 </div>
                 <div class="input-group">
-                    <input type="tel" id="signupTelephone" placeholder="Numéro de téléphone" required />
                     <i class="fas fa-phone"></i>
+                    <input type="tel" id="signupTelephone" placeholder="Numéro de téléphone" required />
                 </div>
                 <div class="input-group">
+                    <i class="fas fa-lock"></i>
                     <input type="password" id="signupPassword" placeholder="Mot de passe" required />
-                    <i class="fas fa-lock"></i>
                 </div>
                 <div class="input-group">
+                    <i class="fas fa-lock"></i>
                     <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" required />
-                    <i class="fas fa-lock"></i>
                 </div>
                 <div class="input-group">
-                    <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)" />
                     <i class="fas fa-ticket"></i>
+                    <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)" />
                 </div>
                 <p class="error-message" id="signupError"></p>
-                <p class="success-message" id="signupSuccess"></p>
-                <button type="submit">
-                    <i class="fas fa-user-plus"></i>
+                <button type="submit" class="submit-btn">
                     Créer un compte
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Firebase et Script -->
+    <script>
+        // Gestion des onglets
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const forms = document.querySelectorAll('.form-container form');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Désactiver tous les boutons
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Activer le bouton cliqué
+                    button.classList.add('active');
+
+                    // Masquer tous les formulaires
+                    forms.forEach(form => form.classList.remove('active'));
+
+                    // Afficher le formulaire correspondant
+                    const formType = button.getAttribute('data-form');
+                    const targetForm = document.querySelector(`form[data-type="${formType}"]`);
+                    targetForm.classList.add('active');
+                });
+            });
+
+            // Gestion de la soumission du formulaire de connexion
+            const loginForm = document.getElementById('loginFormData');
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const telephone = document.getElementById('loginTelephone').value;
+                const password = document.getElementById('loginPassword').value;
+                const errorElement = document.getElementById('loginError');
+
+                // Validation simple
+                if (!telephone || !password) {
+                    errorElement.textContent = 'Veuillez remplir tous les champs';
+                    return;
+                }
+
+                // Ici, vous pouvez ajouter la logique de connexion Firebase
+                console.log('Tentative de connexion', telephone);
+                errorElement.textContent = ''; // Réinitialiser les erreurs
+            });
+
+            // Gestion de la soumission du formulaire d'inscription
+            const signupForm = document.getElementById('signupFormData');
+            signupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('signupUsername').value;
+                const telephone = document.getElementById('signupTelephone').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const errorElement = document.getElementById('signupError');
+
+                // Validation des champs
+                if (!username || !telephone || !password || !confirmPassword) {
+                    errorElement.textContent = 'Veuillez remplir tous les champs';
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    errorElement.textContent = 'Les mots de passe ne correspondent pas';
+                    return;
+                }
+
+                // Ici, vous pouvez ajouter la logique d'inscription Firebase
+                console.log('Tentative d\'inscription', username, telephone);
+                errorElement.textContent = ''; // Réinitialiser les erreurs
+            });
+        });
+    </script>
+
+    <!-- Script Firebase (à ajouter) -->
     <script type="module">
     // Import des modules Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
