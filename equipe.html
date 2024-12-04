@@ -9,55 +9,80 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f4f4f8;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .card {
-            background-color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border-radius: 16px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
         }
         .stat-card {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            transition: transform 0.3s ease;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            transition: all 0.3s ease;
         }
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-7px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         .gradient-text {
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .btn-gradient {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
+        }
+        .member-avatar {
+            background: linear-gradient(145deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+        }
     </style>
 </head>
-<body class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+<body class="p-4">
     <div class="container mx-auto max-w-md">
-        <div class="card p-6 space-y-6">
+        <div class="glass-card p-6 space-y-6">
             <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-gray-800">Mon Équipe</h1>
+                <h1 class="text-3xl font-bold text-gray-800 gradient-text">Mon Équipe</h1>
                 <div class="flex items-center space-x-2">
                     <span class="text-sm text-gray-600">Niveau</span>
-                    <span id="teamLevel" class="font-bold text-purple-600">1</span>
+                    <span id="teamLevel" class="font-bold text-purple-600 text-xl">1</span>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="stat-card p-4 rounded-lg text-center">
                     <h3 class="text-xs text-gray-500 mb-1">Membres</h3>
-                    <div id="teamCount" class="text-2xl font-bold gradient-text">0</div>
+                    <div id="teamCount" class="text-3xl font-bold gradient-text">0</div>
                 </div>
                 <div class="stat-card p-4 rounded-lg text-center">
                     <h3 class="text-xs text-gray-500 mb-1">Bonus Total</h3>
-                    <div id="totalBonus" class="text-2xl font-bold text-green-600">0 FCFA</div>
+                    <div id="totalBonus" class="text-3xl font-bold text-green-600">0 FCFA</div>
                 </div>
             </div>
 
             <div class="flex space-x-2">
-                <button id="showTeamButton" class="flex-1 bg-indigo-500 text-white py-3 rounded-lg hover:bg-indigo-600 transition-colors">
+                <button id="showTeamButton" class="flex-1 btn-gradient text-white py-3 rounded-lg hover:opacity-90 transition-all">
                     Voir mes équipes
                 </button>
-                <button id="claimBonusButton" class="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
+                <button id="claimBonusButton" class="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all" style="display:none;">
                     Réclamer Bonus
                 </button>
             </div>
@@ -70,11 +95,11 @@
                             type="text" 
                             id="referralCode" 
                             readonly 
-                            class="flex-grow bg-gray-100 p-2 rounded-l-lg text-gray-800"
+                            class="flex-grow bg-gray-100 p-2 rounded-l-lg text-gray-800 shadow-inner"
                         >
                         <button 
                             id="copyReferralCodeBtn" 
-                            class="bg-gray-200 px-4 rounded-r-lg hover:bg-gray-300 transition-colors"
+                            class="bg-gradient-to-r from-blue-400 to-purple-500 text-white px-4 rounded-r-lg hover:opacity-90 transition-all"
                         >
                             📋
                         </button>
@@ -88,11 +113,11 @@
                             type="text" 
                             id="referralLink" 
                             readonly 
-                            class="flex-grow bg-gray-100 p-2 rounded-l-lg text-gray-800 truncate"
+                            class="flex-grow bg-gray-100 p-2 rounded-l-lg text-gray-800 truncate shadow-inner"
                         >
                         <button 
                             id="copyReferralLinkBtn" 
-                            class="bg-gray-200 px-4 rounded-r-lg hover:bg-gray-300 transition-colors"
+                            class="bg-gradient-to-r from-green-400 to-blue-500 text-white px-4 rounded-r-lg hover:opacity-90 transition-all"
                         >
                             🔗
                         </button>
@@ -104,10 +129,10 @@
 
     <!-- Modale pour les membres de l'équipe -->
     <div id="teamModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
-        <div class="bg-white w-full max-w-md mx-4 rounded-lg p-6 max-h-[80vh] overflow-y-auto">
+        <div class="glass-card w-full max-w-md mx-4 p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">Mes Équipes</h2>
-                <button id="closeTeamModalBtn" class="text-gray-500 hover:text-gray-800">
+                <h2 class="text-2xl font-bold gradient-text">Mes Équipes</h2>
+                <button id="closeTeamModalBtn" class="text-gray-500 hover:text-gray-800 transition-all">
                     ✖
                 </button>
             </div>
@@ -116,7 +141,8 @@
             </div>
         </div>
     </div>
-<script type="module">
+
+    <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
     import { 
         getAuth, 
@@ -163,114 +189,62 @@
     const copyReferralLinkBtn = document.getElementById('copyReferralLinkBtn');
     const teamModal = document.getElementById('teamModal');
 
+    // Fonction de traitement automatique des bonus
+    async function processReferralBonus(memberData, referrerUid) {
+        try {
+            const referrerRef = ref(database, 'users/' + referrerUid);
+            const memberRef = ref(database, 'users/' + memberData.uid);
+
+            // Calculer le bonus (12% du solde du membre)
+            const bonusAmount = (memberData.balance || 0) * 0.12;
+
+            if (bonusAmount > 0) {
+                // Mise à jour du solde du parrain
+                await runTransaction(referrerRef, (currentData) => {
+                    if (!currentData) return currentData;
+                    
+                    return {
+                        ...currentData,
+                        balance: (currentData.balance || 0) + bonusAmount
+                    };
+                });
+
+                // Marquer le membre comme payé
+                await update(memberRef, {
+                    referralBonusPaidOut: true,
+                    canWithdraw: true
+                });
+
+                // Journalisation du bonus
+                const bonusLogRef = ref(database, `bonusLogs/${referrerUid}`);
+                await update(bonusLogRef, {
+                    [`bonus_${Date.now()}`]: {
+                        amount: bonusAmount,
+                        memberId: memberData.uid,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+
+                console.log(`Bonus de ${bonusAmount} FCFA ajouté automatiquement pour le parrain`);
+            }
+        } catch (error) {
+            console.error('Erreur lors du traitement automatique du bonus:', error);
+        }
+    }
+
     // Fonctions utilitaires
     function updateTeamStats(members) {
-        // Filtrer les membres dont le bonus n'a pas été réclamé par le parrain
         const unclaimedMembers = members.filter(member => !member.referralBonusPaidOut);
         
         document.getElementById('teamCount').textContent = unclaimedMembers.length;
         document.getElementById('teamLevel').textContent = Math.floor(unclaimedMembers.length / 5) + 1;
         
-        // Calculer le bonus de parrainage uniquement pour les membres non payés
         totalTeamBonus = unclaimedMembers.reduce((sum, member) => {
             return sum + ((member.balance || 0) * 0.12);
         }, 0);
 
         document.getElementById('totalBonus').textContent = 
             totalTeamBonus.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' FCFA';
-    }
-
-    async function claimBonus() {
-        if (!currentUser || totalTeamBonus <= 0) {
-            alert('Aucun bonus disponible');
-            return;
-        }
-
-        try {
-            const userRef = ref(database, 'users/' + currentUser.uid);
-            
-            // Mise à jour du solde du parrain
-            await runTransaction(userRef, (currentData) => {
-                if (!currentData) return currentData;
-                
-                return {
-                    ...currentData,
-                    balance: (currentData.balance || 0) + totalTeamBonus
-                };
-            });
-
-            // Marquer les membres comme payés par le parrain et autoriser leur retrait
-            const updatePromises = teamMembers.map(async (member) => {
-                const memberRef = ref(database, `users/${member.uid}`);
-                await update(memberRef, {
-                    referralBonusPaidOut: true, // Marqué comme payé
-                    canWithdraw: true  // Nouveau flag permettant le retrait
-                });
-            });
-
-            await Promise.all(updatePromises);
-
-            // Créer un journal des bonus réclamés
-            const bonusLogRef = ref(database, `bonusLogs/${currentUser.uid}`);
-            await update(bonusLogRef, {
-                [`bonus_${Date.now()}`]: {
-                    amount: totalTeamBonus,
-                    timestamp: new Date().toISOString()
-                }
-            });
-
-            alert(`Bonus de ${totalTeamBonus.toLocaleString('fr-FR')} FCFA réclamé avec succès !`);
-            
-            // Réinitialiser le total des bonus
-            totalTeamBonus = 0;
-            updateTeamStats(teamMembers);
-        } catch (error) {
-            console.error('Erreur lors de la réclamation du bonus:', error);
-            alert('Erreur lors de la réclamation du bonus');
-        }
-    }
-
-    // Nouvelle fonction de retrait avec restriction
-    async function withdrawFunds(amount) {
-        if (!currentUser) {
-            alert('Utilisateur non connecté');
-            return false;
-        }
-
-        const userRef = ref(database, `users/${currentUser.uid}`);
-        try {
-            const snapshot = await get(userRef);
-            const userData = snapshot.val();
-
-            // Vérification si le retrait est autorisé
-            if (!userData.canWithdraw) {
-                alert("Vous ne pouvez pas encore retirer votre argent. Votre parrain doit d'abord réclamer son bonus.");
-                return false;
-            }
-
-            // Vérifier si le solde est suffisant
-            if ((userData.balance || 0) < amount) {
-                alert('Solde insuffisant');
-                return false;
-            }
-
-            // Mise à jour du solde
-            await runTransaction(userRef, (currentData) => {
-                if (!currentData) return currentData;
-                
-                return {
-                    ...currentData,
-                    balance: (currentData.balance || 0) - amount
-                };
-            });
-
-            alert(`Retrait de ${amount.toLocaleString('fr-FR')} FCFA effectué avec succès !`);
-            return true;
-        } catch (error) {
-            console.error('Erreur lors du retrait:', error);
-            alert('Erreur lors du retrait');
-            return false;
-        }
     }
 
     function displayTeamMembers(members) {
@@ -320,7 +294,6 @@
         teamModal.classList.remove('flex');
     });
 
-    claimBonusButton.addEventListener('click', claimBonus);
     copyReferralCodeBtn.addEventListener('click', () => copyToClipboard('referralCode'));
     copyReferralLinkBtn.addEventListener('click', () => copyToClipboard('referralLink'));
 
@@ -348,10 +321,17 @@
                 teamMembers = []; // Réinitialiser
                 if (snapshot.exists()) {
                     snapshot.forEach((memberSnapshot) => {
-                        teamMembers.push({
+                        const memberData = {
                             ...memberSnapshot.val(),
                             uid: memberSnapshot.key
-                        });
+                        };
+                        
+                        teamMembers.push(memberData);
+
+                        // Traitement automatique du bonus si pas encore payé
+                        if (!memberData.referralBonusPaidOut && memberData.balance > 0) {
+                            processReferralBonus(memberData, user.uid);
+                        }
                     });
                 }
                 updateTeamStats(teamMembers);
@@ -361,9 +341,6 @@
             window.location.href = 'index.html';
         }
     });
-
-    // Exportez la fonction de retrait si nécessaire pour d'autres parties de l'application
-    window.withdrawFunds = withdrawFunds;
 </script>
 </body>
 </html>
