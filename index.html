@@ -2,96 +2,140 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>REGISTER AMAZON</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UBER Connect</title>
     
-    <!-- Font Awesome -->
+    <!-- Bibliothèques externes -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        :root {
+            /* Palette de couleurs Uber */
+            --color-black: #000000;
+            --color-white: #FFFFFF;
+            --color-green: #2ecc71;
+            --color-blue: #3498db;
+            --color-red: #e74c3c;
+            --color-orange: #f39c12;
+            
+            /* Dégradés et ombres */
+            --gradient-primary: linear-gradient(135deg, #2c3e50, #000000);
+            --shadow-primary: 0 15px 35px rgba(255,255,255,0.1);
+        }
+
+        /* Reset et base */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Uber Move', Arial, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: var(--color-black);
+            color: var(--color-white);
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
             overflow: hidden;
-            color: white;
+            line-height: 1.6;
         }
 
+        /* Arrière-plan animé */
+        .background-circles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: pulse 4s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.2); opacity: 0.6; }
+        }
+
+        /* Conteneur principal */
         .container {
             position: relative;
-            z-index: 10;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
             width: 100%;
             max-width: 450px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-primary);
+            z-index: 10;
         }
 
-        .tab-buttons {
+        /* Logo */
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--color-white);
+        }
+
+        /* Navigation des onglets */
+        .tab-navigation {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .tab-button {
             flex: 1;
-            padding: 10px;
+            padding: 15px;
             background: transparent;
             border: none;
-            color: white;
+            color: rgba(255,255,255,0.6);
             font-weight: bold;
-            opacity: 0.6;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .tab-button.active {
-            opacity: 1;
-            border-bottom-color: white;
+            background: var(--color-green);
+            color: var(--color-black);
         }
 
+        /* Formulaires */
         .form-container form {
             display: none;
         }
 
         .form-container form.active {
             display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .input-group {
             position: relative;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .input-group input {
             width: 100%;
-            padding: 12px 15px 12px 40px;
-            border: none;
+            padding: 15px 15px 15px 50px;
+            border: 2px solid rgba(255,255,255,0.1);
             border-radius: 10px;
-            background: rgba(255,255,255,0.2);
-            color: white;
+            background: rgba(255,255,255,0.05);
+            color: var(--color-white);
             transition: all 0.3s ease;
         }
 
-        .input-group input::placeholder {
-            color: rgba(255,255,255,0.7);
+        .input-group input:focus {
+            border-color: var(--color-green);
+            outline: none;
         }
 
         .input-group i {
@@ -99,113 +143,134 @@
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: white;
-            opacity: 0.7;
+            color: rgba(255,255,255,0.5);
         }
 
-        button {
+        /* Boutons */
+        .btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            padding: 15px;
+            background: var(--color-green);
+            color: var(--color-black);
             border: none;
-            color: white;
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
-        button:hover {
+        .btn:hover {
             transform: scale(1.05);
+            opacity: 0.9;
         }
 
-        .error-message, .success-message {
-            color: white;
+        /* Messages */
+        .error-message {
+            color: var(--color-red);
             text-align: center;
             margin-bottom: 15px;
         }
 
+        /* Section de parrainage */
         .referral-section {
-            margin-top: 20px;
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed rgba(255,255,255,0.2);
             border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
             text-align: center;
         }
 
         .referral-code {
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
+            align-items: center;
+            margin-top: 10px;
         }
 
-        .copy-btn {
-            background: none;
-            border: 1px solid white;
-            padding: 5px 10px;
+        .referral-code-display {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .copy-referral-btn {
+            background: var(--color-blue);
+            color: var(--color-white);
+            border: none;
+            padding: 10px 15px;
             margin-left: 10px;
-            transition: background-color 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background-color: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
+    <div class="background-circles" id="backgroundCircles"></div>
+
     <div class="container">
-        <div class="tab-buttons">
-            <button class="tab-button active" onclick="showLogin()">Connexion</button>
-            <button class="tab-button" onclick="showSignup()">Inscription</button>
+        <div class="logo">UBER </div>
+
+        <div class="tab-navigation">
+            <button class="tab-button active" data-target="login">Connexion</button>
+            <button class="tab-button" data-target="signup">Inscription</button>
         </div>
 
         <div class="form-container">
             <!-- Formulaire de Connexion -->
-            <form id="loginFormData" class="active">
+            <form id="loginForm" class="active">
                 <div class="input-group">
-                    <input type="tel" id="loginTelephone" placeholder="Numéro de téléphone" required />
                     <i class="fas fa-phone"></i>
+                    <input type="tel" id="loginTelephone" placeholder="Numéro de téléphone" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="loginPassword" placeholder="Mot de passe" required />
                     <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Mot de passe" required>
                 </div>
                 <p class="error-message" id="loginError"></p>
-                <button type="submit">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Se connecter
+                <button type="submit" class="btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
                 </button>
             </form>
 
             <!-- Formulaire d'Inscription -->
-            <form id="signupFormData">
+            <form id="signupForm">
                 <div class="input-group">
-                    <input type="text" id="signupUsername" placeholder="Nom d'utilisateur" required />
                     <i class="fas fa-user"></i>
+                    <input type="text" id="signupUsername" placeholder="Nom d'utilisateur" required>
                 </div>
                 <div class="input-group">
-                    <input type="tel" id="signupTelephone" placeholder="Numéro de téléphone" required />
                     <i class="fas fa-phone"></i>
+                    <input type="tel" id="signupTelephone" placeholder="Numéro de téléphone" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="signupPassword" placeholder="Mot de passe" required />
                     <i class="fas fa-lock"></i>
+                    <input type="password" id="signupPassword" placeholder="Mot de passe" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" required />
                     <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" required>
                 </div>
                 <div class="input-group">
-                    <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)" />
                     <i class="fas fa-link"></i>
+                    <input type="text" id="referralCode" placeholder="Code de parrainage (optionnel)">
                 </div>
                 <p class="error-message" id="signupError"></p>
-                <p class="success-message" id="signupSuccess"></p>
-                <button type="submit">
-                    <i class="fas fa-user-plus"></i>
-                    Créer un compte
+                <button type="submit" class="btn">
+                    <i class="fas fa-user-plus"></i> Créer un compte
                 </button>
+
+                <div class="referral-section" id="referralSection" style="display:none;">
+                    <h3>Votre Code de Parrainage</h3>
+                    <div class="referral-code">
+                        <div class="referral-code-display" id="userReferralCode">XXXXXX</div>
+                        <button class="copy-referral-btn" id="copyReferralCode">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -248,182 +313,101 @@
         return Array.from({ length: 6 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
     }
 
-    async function checkReferralCode(code) {
-        if (!code) return null;
-        try {
-            const snapshot = await get(ref(database, 'referralCodes/' + code));
-            return snapshot.exists() ? snapshot.val() : null;
-        } catch (error) {
-            console.error("Erreur de vérification du code:", error);
-            return null;
-        }
-    }
-
-    async function registerReferralCode(userId, code) {
-        try {
-            await set(ref(database, 'referralCodes/' + code), {
-                userId,
-                createdAt: Date.now()
-            });
-            return true;
-        } catch (error) {
-            console.error("Erreur d'enregistrement du code:", error);
-            return false;
-        }
-    }
-
-    async function getUserReferralCode() {
-        try {
-            const user = auth.currentUser;
-            if (!user) return null;
-
-            const userRef = ref(database, 'users/' + user.uid);
-            const snapshot = await get(userRef);
+    // Gestion des onglets
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetForm = button.dataset.target;
             
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-                return userData.referralCode;
-            }
-            return null;
-        } catch (error) {
-            console.error("Erreur de récupération du code de parrainage:", error);
-            return null;
-        }
-    }
+            // Gestion des boutons
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
 
-    async function displayReferralCode() {
-        const referralCode = await getUserReferralCode();
-        const referralSection = document.getElementById('referralSection');
-        const userReferralCodeElement = document.getElementById('userReferralCode');
-        const copyReferralCodeButton = document.getElementById('copyReferralCode');
-
-        if (referralCode) {
-            userReferralCodeElement.textContent = referralCode;
-            referralSection.style.display = 'block';
-
-            copyReferralCodeButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(referralCode).then(() => {
-                    alert('Code de parrainage copié !');
-                }).catch(err => {
-                    console.error('Erreur de copie:', err);
-                });
-            });
-        }
-    }
-
-    // Gestion de l'interface
-    window.showLogin = function() {
-        document.getElementById("loginFormData").classList.add("active");
-        document.getElementById("signupFormData").classList.remove("active");
-        document.querySelectorAll(".tab-button").forEach((btn, index) => {
-            btn.classList.toggle("active", index === 0);
+            // Gestion des formulaires
+            document.querySelectorAll('.form-container form').forEach(form => form.classList.remove('active'));
+            document.getElementById(`${targetForm}Form`).classList.add('active');
         });
-    }
+    });
 
-    window.showSignup = function() {
-        document.getElementById("signupFormData").classList.add("active");
-        document.getElementById("loginFormData").classList.remove("active");
-        document.querySelectorAll(".tab-button").forEach((btn, index) => {
-            btn.classList.toggle("active", index === 1);
-        });
-    }
+    // Gestion de l'inscription
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorElement = document.getElementById('signupError');
+        errorElement.textContent = '';
 
-    // Gestion des soumissions de formulaires
-    document.getElementById("signupFormData").addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const errorElement = document.getElementById("signupError");
-        const successElement = document.getElementById("signupSuccess");
-        errorElement.innerText = "";
-        successElement.innerText = "";
+        const username = document.getElementById('signupUsername').value;
+        const telephone = document.getElementById('signupTelephone').value;
+        const password = document.getElementById('signupPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const referralCode = document.getElementById('referralCode').value;
+
+        // Validations
+        if (password !== confirmPassword) {
+            errorElement.textContent = 'Les mots de passe ne correspondent pas';
+            return;
+        }
 
         try {
-            const username = document.getElementById("signupUsername").value;
-            const telephone = document.getElementById("signupTelephone").value;
             const email = `${telephone}@temp.com`;
-            const password = document.getElementById("signupPassword").value;
-            const confirmPassword = document.getElementById("confirmPassword").value;
-            const referralCode = document.getElementById("referralCode").value;
-
-            // Validation
-            if (password !== confirmPassword) {
-                throw new Error("Les mots de passe ne correspondent pas");
-            }
-
-            let referrerData = null;
-            if (referralCode) {
-                referrerData = await checkReferralCode(referralCode);
-                if (!referrerData) {
-                    throw new Error("Code de parrainage invalide");
-                }
-            }
-
-            // Création de l'utilisateur
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             const newReferralCode = generateReferralCode();
-            
-            // Sauvegarde des données
+
+            // Sauvegarde des données utilisateur
             await set(ref(database, 'users/' + user.uid), {
                 username,
                 email,
                 phoneNumber: telephone,
                 balance: 0,
                 referralCode: newReferralCode,
-                referredBy: referrerData?.userId || null,
                 createdAt: Date.now()
             });
 
-            await registerReferralCode(user.uid, newReferralCode);
-
-            successElement.innerText = "Compte créé avec succès !";
-
-            // Redirection
-            setTimeout(() => {
-                window.location.href = "solde.html";
-            }, 1500);
-
+            // Redirection après inscription
+            window.location.href = 'solde.html';
         } catch (error) {
-            errorElement.innerText = error.message;
+            errorElement.textContent = error.message;
         }
     });
 
-    document.getElementById("loginFormData").addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const errorElement = document.getElementById("loginError");
-        errorElement.innerText = "";
+    // Gestion de la connexion
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorElement = document.getElementById('loginError');
+        errorElement.textContent = '';
+
+        const telephone = document.getElementById('loginTelephone').value;
+        const password = document.getElementById('loginPassword').value;
 
         try {
-            const telephone = document.getElementById("loginTelephone").value;
             const email = `${telephone}@temp.com`;
-            const password = document.getElementById("loginPassword").value;
-
             await signInWithEmailAndPassword(auth, email, password);
-            window.location.href = "solde.html";
+            window.location.href = 'solde.html';
         } catch (error) {
-            errorElement.innerText = "Numéro ou mot de passe incorrect";
+            errorElement.textContent = 'Numéro ou mot de passe incorrect';
         }
     });
 
-    // Gestion du code de parrainage dans l'URL
-    document.addEventListener("DOMContentLoaded", function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const referralCode = urlParams.get('ref');
-        const referralCodeInput = document.getElementById('referralCode');
+    // Gestion des cercles de fond
+    function createBackgroundCircles() {
+        const backgroundCircles = document.getElementById('backgroundCircles');
+        const colors = ['#2ecc71', '#3498db', '#e74c3c', '#f39c12'];
         
-        if (referralCodeInput && referralCode) {
-            referralCodeInput.value = referralCode;
+        for (let i = 0; i < 10; i++) {
+            const circle = document.createElement('div');
+            circle.classList.add('circle');
+            circle.style.width = `${Math.random() * 200 + 50}px`;
+            circle.style.height = circle.style.width;
+            circle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            circle.style.top = `${Math.random() * 100}%`;
+            circle.style.left = `${Math.random() * 100}%`;
+            circle.style.animationDelay = `${Math.random() * 2}s`;
+            
+            backgroundCircles.appendChild(circle);
         }
-    });
+    }
 
-    // Gestion de l'authentification 
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            displayReferralCode();
-        } else {
-            if (!window.location.pathname.includes('index.html')) {
-                window.location.href = 'index.html';}
-        }
-    });
+    // Initialisation
+    createBackgroundCircles();
     </script>
 </body>
 </html>
