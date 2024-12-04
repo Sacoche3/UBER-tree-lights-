@@ -408,6 +408,33 @@
 
     // Initialisation
     createBackgroundCircles();
+    
+    // Fonction pour récupérer et afficher le code de parrainage
+function displayReferralCode() {
+    // Récupérer l'utilisateur connecté (selon votre système d'authentification)
+    const userId = getCurrentUserId(); // À implémenter selon votre système
+
+    // Requête pour obtenir le code de parrainage
+    fetch(`/api/users/${userId}/referral-code`)
+        .then(response => response.json())
+        .then(data => {
+            // Afficher le code de parrainage
+            document.getElementById('userReferralCode').textContent = data.referralCode;
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération du code de parrainage:', error);
+        });
+}
+
+// Fonction pour obtenir l'ID de l'utilisateur connecté
+function getCurrentUserId() {
+    // Implémentez cette fonction selon votre système d'authentification
+    // Par exemple, récupérer depuis le localStorage, une session, etc.
+    return localStorage.getItem('userId'); // Exemple simplifié
+}
+
+// Appeler la fonction quand la page charge
+document.addEventListener('DOMContentLoaded', displayReferralCode);
     </script>
 </body>
 </html>
