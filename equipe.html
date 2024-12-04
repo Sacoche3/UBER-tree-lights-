@@ -116,7 +116,6 @@
             </div>
         </div>
     </div>
- 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
     import { 
@@ -156,6 +155,14 @@
     let currentUser = null;
     let totalTeamBonus = 0;
 
+    // Gestionnaires d'événements
+    const showTeamButton = document.getElementById('showTeamButton');
+    const closeTeamModalBtn = document.getElementById('closeTeamModalBtn');
+    const claimBonusButton = document.getElementById('claimBonusButton');
+    const copyReferralCodeBtn = document.getElementById('copyReferralCodeBtn');
+    const copyReferralLinkBtn = document.getElementById('copyReferralLinkBtn');
+    const teamModal = document.getElementById('teamModal');
+
     // Fonctions utilitaires
     function updateTeamStats(members) {
         // Filtrer les membres dont le bonus n'a pas été réclamé par le parrain
@@ -192,13 +199,12 @@
                 };
             });
 
-            // Bloquer le solde de chaque filleul tant que le bonus n'est pas réclamé
+            // Marquer les membres comme payés par le parrain et autoriser leur retrait
             const updatePromises = teamMembers.map(async (member) => {
                 const memberRef = ref(database, `users/${member.uid}`);
                 await update(memberRef, {
-                    referralBonusPaidOut: true, // Marquer comme payé
-                    balanceBlocked: true, // Nouveau flag pour bloquer le solde
-                    blockedReason: 'En attente de réclamation de bonus par le parrain'
+                    referralBonusPaidOut: true, // Marqué comme payé
+                    canWithdraw: true  // Nouveau flag permettant le retrait
                 });
             });
 
@@ -209,8 +215,7 @@
             await update(bonusLogRef, {
                 [`bonus_${Date.now()}`]: {
                     amount: totalTeamBonus,
-                    timestamp: new Date().toISOString(),
-                    memberCount: unclaimedMembers.length
+                    timestamp: new Date().toISOString()
                 }
             });
 
@@ -222,6 +227,49 @@
         } catch (error) {
             console.error('Erreur lors de la réclamation du bonus:', error);
             alert('Erreur lors de la réclamation du bonus');
+        }
+    }
+
+    // Nouvelle fonction de retrait avec restriction
+    async function withdrawFunds(amount) {
+        if (!currentUser) {
+            alert('Utilisateur non connecté');
+            return false;
+        }
+
+        const userRef = ref(database, `users/${currentUser.uid}`);
+        try {
+            const snapshot = await get(userRef);
+            const userData = snapshot.val();
+
+            // Vérification si le retrait est autorisé
+            if (!userData.canWithdraw) {
+                alert("Vous ne pouvez pas encore retirer votre argent. Votre parrain doit d'abord réclamer son bonus.");
+                return false;
+            }
+
+            // Vérifier si le solde est suffisant
+            if ((userData.balance || 0) < amount) {
+                alert('Solde insuffisant');
+                return false;
+            }
+
+            // Mise à jour du solde
+            await runTransaction(userRef, (currentData) => {
+                if (!currentData) return currentData;
+                
+                return {
+                    ...currentData,
+                    balance: (currentData.balance || 0) - amount
+                };
+            });
+
+            alert(`Retrait de ${amount.toLocaleString('fr-FR')} FCFA effectué avec succès !`);
+            return true;
+        } catch (error) {
+            console.error('Erreur lors du retrait:', error);
+            alert('Erreur lors du retrait');
+            return false;
         }
     }
 
@@ -242,23 +290,9 @@
                                 Rejoint le ${new Date(member.createdAt).toLocaleDateString('fr-FR')}
                             </p>
                             <div class="text-green-600 font-medium">
-                                ${member.balanceBlocked 
-                                    ? `<span class="text-red-500">Solde bloqué: ${(member.balance || 0).toLocaleString('fr-FR')} FCFA</span>` 
-                                    : `${(member.balance || 0).toLocaleString('fr-FR')} FCFA`
-                                }
-                                ${member.referralBonusPaidOut 
-                                    ? `<span class="ml-2 text-xs text-gray-500">
-                                        (Bonus réclamé${member.balanceBlocked ? ' - Solde bloqué' : ''})
-                                       </span>` 
-                                    : ''
-                                }
+                                ${(member.balance || 0).toLocaleString('fr-FR')} FCFA
+                                ${member.referralBonusPaidOut ? '<span class="ml-2 text-xs text-gray-500">(Bonus réclamé par le parrain)</span>' : ''}
                             </div>
-                            ${member.balanceBlocked 
-                                ? `<p class="text-xs text-red-500 mt-1">
-                                    ${member.blockedReason || 'Solde temporairement bloqué'}
-                                   </p>` 
-                                : ''
-                            }
                         </div>
                     </div>
                 </div>
@@ -266,7 +300,70 @@
             : '<p class="text-center text-gray-500">Aucun membre dans votre équipe</p>';
     }
 
-    // Reste du script identique (événements, authentification, etc.)
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        navigator.clipboard.writeText(element.value).then(() => {
+            alert('Copié !');
+        }).catch(err => {
+            console.error('Erreur de copie:', err);
+        });
+    }
+
+    // Événements
+    showTeamButton.addEventListener('click', () => {
+        teamModal.classList.remove('hidden');
+        teamModal.classList.add('flex');
+    });
+
+    closeTeamModalBtn.addEventListener('click', () => {
+        teamModal.classList.add('hidden');
+        teamModal.classList.remove('flex');
+    });
+
+    claimBonusButton.addEventListener('click', claimBonus);
+    copyReferralCodeBtn.addEventListener('click', () => copyToClipboard('referralCode'));
+    copyReferralLinkBtn.addEventListener('click', () => copyToClipboard('referralLink'));
+
+    // Authentification et chargement des données
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            const userRef = ref(database, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                const userData = snapshot.val();
+                if (userData && userData.referralCode) {
+                    document.getElementById('referralCode').value = userData.referralCode;
+                    document.getElementById('referralLink').value = 
+                        `${window.location.origin}/index.html?ref=${userData.referralCode}`;
+                }
+            });
+
+            const teamQuery = query(
+                ref(database, 'users'),
+                orderByChild('referredBy'),
+                equalTo(user.uid)
+            );
+
+            onValue(teamQuery, (snapshot) => {
+                teamMembers = []; // Réinitialiser
+                if (snapshot.exists()) {
+                    snapshot.forEach((memberSnapshot) => {
+                        teamMembers.push({
+                            ...memberSnapshot.val(),
+                            uid: memberSnapshot.key
+                        });
+                    });
+                }
+                updateTeamStats(teamMembers);
+                displayTeamMembers(teamMembers);
+            });
+        } else {
+            window.location.href = 'index.html';
+        }
+    });
+
+    // Exportez la fonction de retrait si nécessaire pour d'autres parties de l'application
+    window.withdrawFunds = withdrawFunds;
 </script>
 </body>
 </html>
